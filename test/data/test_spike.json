@@ -1,0 +1,13 @@
+{
+    "map_size" : {
+        "width" : 1,
+        "height": 6
+    },
+    "blocks" :
+    [
+        {"type" : "Anna", "pos" : {"x" : 0, "y": 5} },
+        {"type" : "Stone", "pos" : {"x" : 0, "y": 2},
+            "walls" : {"down" : {"type" : "Spike"} } }
+    ]
+
+}

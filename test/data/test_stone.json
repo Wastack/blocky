@@ -1,0 +1,12 @@
+{
+    "map_size" : {
+        "width" : 6,
+        "height" : 1
+    },
+    "blocks" :
+    [
+        {"type" : "Anna", "pos" : {"x" : 5, "y": 0} },
+        {"type" : "Stone", "pos" : {"x" : 2, "y": 0} }
+    ]
+
+}
