@@ -1,26 +1,11 @@
-from game.blocks.block import AbstractBlock
+from game.blocks.impl.rock import RockBlock
 from game.moveables.moveable import Moveable
-from game.utils.direction import Direction
-from game.utils.move_verdict import MoveVerdict
 
 
-class Player(AbstractBlock, Moveable):
-    def __init__(self, start_direction: Direction = Direction.DEFAULT):
-        self._direction = start_direction
+class Player(RockBlock, Moveable):
+    def __init__(self):
+        super().__init__()
         self._dead = False
-
-    @property
-    def direction(self) -> Direction:
-        return self._direction
-
-    def set_direction(self, dir: Direction):
-        self._direction = dir
-
-    def before_step(self, intruder: Moveable) -> MoveVerdict:
-        return MoveVerdict.NO_MOVE
-
-    def after_step(self, intruder: Moveable):
-        pass  # Empty block has no effect whatsoever
 
     def set_dead(self, is_dead=True):
         self._dead = is_dead
