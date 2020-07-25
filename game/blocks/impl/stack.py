@@ -26,6 +26,9 @@ class GameStack(AbstractBlock):
             return EmptyBlock()
         return self._data[-1]
 
+    def data(self) -> List[AbstractBlock]:
+        return self._data[:]
+
     def get_players(self) -> List[Player]:
         return [x for x in self._data if isinstance(x, Player)]
 

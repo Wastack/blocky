@@ -25,7 +25,6 @@ def test_empty_moveright():
     # Then
     p, pos = _find_player(map)
     assert not p.is_alive()
-    logging.debug(f"actual pos: {pos}")
     assert pos == Position(4, 0)
 
 

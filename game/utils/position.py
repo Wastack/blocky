@@ -1,12 +1,10 @@
+from dataclasses import dataclass
 
 
+@dataclass
 class Position:
-    def __init__(self, x: int, y:int):
-        self.x = x
-        self.y = y
-
-    def __eq__(self, o: 'Position'):
-        return (self.x == o.x) and (self.y == o.y)
+    x: int
+    y: int
 
     def __add__(self, o):
         return Position(x=self.x + o.x, y=self.y + o.y)

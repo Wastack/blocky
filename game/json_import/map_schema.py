@@ -1,3 +1,5 @@
+from typing import Tuple
+
 from marshmallow import Schema, fields, post_load, validate
 from marshmallow_oneofschema import OneOfSchema
 
@@ -14,13 +16,13 @@ class PositionSchema(Schema):
     y = fields.Integer()
 
     @post_load
-    def make_position(self, data, **kwargs):
+    def make_position(self, data, **kwargs) -> Position:
         return Position(**data)
 
 
 class SpikeWallSchema(Schema):
     @post_load
-    def make_spike(self, _data,  **kwargs):
+    def make_spike(self, _data,  **kwargs) -> KillerWall:
         return KillerWall()
 
 class AbstractWallSchema(OneOfSchema):
@@ -32,7 +34,7 @@ class PlayerSchema(Schema):
     pos = fields.Nested(PositionSchema)
 
     @post_load
-    def make_player(self, data, **kwargs):
+    def make_player(self, data, **kwargs) -> Tuple[Player, Position]:
         return Player(), data["pos"]
 
 
@@ -42,7 +44,7 @@ class RockSchema(Schema):
     pos = fields.Nested(PositionSchema)
 
     @post_load
-    def make_map_size(self, data, **kwargs):
+    def make_map_size(self, data, **kwargs) -> Tuple[RockBlock, Position]:
         if data.get("walls") is None:
             return RockBlock(), data["pos"]
         return RockBlock(walls=WallContainer(**data["walls"])), data["pos"]
@@ -60,7 +62,7 @@ class MapSizeSchema(Schema):
     height = fields.Integer()
 
     @post_load
-    def make_map_size(self, data, **kwargs):
+    def make_map_size(self, data, **kwargs) -> Size:
         return Size(**data)
 
 class MapSchema(Schema):
@@ -68,7 +70,7 @@ class MapSchema(Schema):
     blocks = fields.List(fields.Nested(AbstractBlockSchema))
 
     @post_load
-    def make_map_size(self, data, **kwargs):
+    def make_map_size(self, data, **kwargs) -> GameMap:
         map = GameMap(data["map_size"])
         blocks = data["blocks"]
         for b, pos in blocks:
