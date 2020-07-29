@@ -6,7 +6,7 @@ import tkinter
 
 from game.json_import.map_schema import MapSchema
 from gui.views.map_view import MapView
-from gui.mouse_controller import MouseController
+from gui.views.selection_controller import SelectionController
 from gui.views.palette import Palette
 
 _WINDOW_WIDTH = 1024
@@ -27,16 +27,6 @@ def _create_canvas(window) -> tkinter.Canvas:
     canvas.configure(bg="black")
     canvas.pack(fill="both", expand=True)
 
-    mouse_controller = MouseController(canvas, None)
-    mouse_controller.register_canvas_events()
-
-    palette_controller = Palette(canvas)
-    palette_controller.register_right_mouse()
-
-    return canvas
-
-
-def _initialize_editor(canvas: tkinter.Canvas) -> None:
     with open(os.path.join(pathlib.Path(__file__).parent.parent ,"test/data", "test_stone_4x4.json")) as fp:
         json_data = json.load(fp)
     schema = MapSchema()
@@ -44,11 +34,19 @@ def _initialize_editor(canvas: tkinter.Canvas) -> None:
     map_view = MapView(my_map, canvas)
     map_view.draw()
 
+    selection_controller = SelectionController(canvas, map_view)
+    selection_controller.register_canvas_events()
+
+    palette_controller = Palette(canvas)
+    palette_controller.register_right_mouse(selection_controller.put_block_to_selection)
+
+
+    return canvas
+
 
 def main():
     window = _create_window()
     canvas = _create_canvas(window)
-    _initialize_editor(canvas)
     window.mainloop()
 
 

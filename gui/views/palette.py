@@ -1,8 +1,10 @@
+import logging
 from dataclasses import dataclass
 from tkinter import Canvas
 from tkinter.font import Font
-from typing import List
+from typing import List, Callable, Type
 
+from gui.block_views.block import BlockView
 from gui.block_views.block_view_factory import registered_block_views
 
 PALETTE_WIDTH = 80
@@ -12,7 +14,6 @@ HEIGHT_MARGIN = 15
 NOT_SELECTED_FILL = "AntiqueWhite1"
 SELECTED_FILL = "Yellow"
 TEXT_FILL = "DeepSkyBlue4"
-TEXT_FONT = Font(family="Times", size=str(10), weight="bold")
 
 @dataclass
 class _BlockElement:
@@ -45,13 +46,18 @@ class Palette:
     def _catch_and_destroy(self, mouse_event):
         index = self._index_from_mouse_y_pos(mouse_event.y)
         #logging.debug(f"pressed y: {self._mouse_pressed_y}, released y: {mouse_event.y}, index: {index}")
-        if 0 <= index < len(registered_block_views):
-            print(f"Chosen block is: {registered_block_views[index].repr()}")
 
+        # clear palette
         for elem in self._block_elements:
             self._canvas.delete(elem.text)
             self._canvas.delete(elem.rectangle)
         self._block_elements = []
+
+        # publish result
+        if 0 <= index < len(registered_block_views):
+            block_view = registered_block_views[index]
+            logging.info(f"Chosen block is: {block_view.repr()}")
+            self._callback(block_view)
 
     def _motion(self, mouse_event):
         index = self._index_from_mouse_y_pos(mouse_event.y)
@@ -72,17 +78,19 @@ class Palette:
     def _create_palette(self, mouse_x: int, mouse_y: int) -> None:
         text_pos_x = mouse_x + PALETTE_WIDTH // 2
         text_pos_y = mouse_y + HEIGHT_MARGIN
+        text_font = Font(family="Times", size=str(10), weight="bold")
         for cls in registered_block_views:
             rect = self._canvas.create_rectangle(mouse_x, text_pos_y-15, mouse_x + PALETTE_WIDTH, text_pos_y + 10, fill=NOT_SELECTED_FILL)
-            text = self._canvas.create_text(text_pos_x, text_pos_y, text=cls.repr(), fill=TEXT_FILL, font=TEXT_FONT)
+            text = self._canvas.create_text(text_pos_x, text_pos_y, text=cls.repr(), fill=TEXT_FILL, font=text_font)
             self._block_elements.append(_BlockElement(text, rect))
             text_pos_y += ONE_BLOCK_HEIGHT
         self._canvas.itemconfig(self._block_elements[0].rectangle, fill=SELECTED_FILL)
 
-    def register_right_mouse(self) -> None:
+    def register_right_mouse(self, callback: Callable[[Type[BlockView]], None]) -> None:
         """
         Registers right mouse events.
         """
+        self._callback = callback
         self._canvas.bind("<Button-3>", self._show)
         self._canvas.bind("<Motion>", self._motion)
         self._canvas.bind("<ButtonRelease-3>", self._catch_and_destroy)

@@ -11,6 +11,7 @@ from gui.utils import rect_from_pos, BLOCK_SIZE
 class BlockView(ABC):
     def __init__(self, canvas: tkinter.Canvas):
         self._canvas = canvas
+        self._rect: Optional[int] = None
 
     def _create_block(self, pos: Position) -> Any:
         rect = rect_from_pos(pos)
@@ -22,8 +23,14 @@ class BlockView(ABC):
         return text_id
 
     def draw(self, pos: Position) -> Any:
-        rect = self._create_block(pos)
-        return rect
+        if self._rect is not None:
+            self.destroy()
+        self._rect = self._create_block(pos)
+        return self._rect
+
+    def destroy(self):
+        self._canvas.delete(self._rect)
+        self._rect = None
 
 
     @staticmethod

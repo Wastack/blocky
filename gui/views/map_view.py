@@ -1,6 +1,7 @@
 from game.gamemap import GameMap
 from game.utils.position import Position
 from gui.block_views import block_view_factory
+from gui.block_views.block import BlockView
 from gui.block_views.empty_block import EmptyBlockView
 
 
@@ -25,3 +26,15 @@ class MapView:
             for y, cell in enumerate(col):
                 for b in cell:
                     b.draw(Position(x, y))
+
+    def _clear_at(self, pos: Position) -> None:
+        stack = self._block_views[pos.x][pos.y]
+        for e in stack:
+            e.destroy()
+        stack.clear()
+
+    def replaceAt(self, pos: Position, block: BlockView):
+        self._clear_at(pos)
+        stack = self._block_views[pos.x][pos.y]
+        stack.append(block)
+        block.draw(pos)
