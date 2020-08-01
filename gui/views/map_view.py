@@ -51,18 +51,33 @@ class MapView:
 
     def resize(self, size: Size) -> bool:
         current = self.size
-        if size.width < current.width or size.height < current.height:
-            logging.error("Reducing map size is not yet implemented.")
-            return False
         d_width, d_height = size.width - current.width, size.height - current.height
         logging.debug("Diff: width: {}, height: {}".format(d_width, d_height))
-        for col in self._block_views:
-            for _ in range(d_height):
-                col.append([EmptyBlockView(self._canvas)])
-        for _ in range(d_width):
-            col = []
-            self._block_views.append(col)
-            for _ in range(size.height):
-                col.append([EmptyBlockView(self._canvas)])
-        self.draw()
+
+        # Height
+        if d_height < 0:
+            for i, col in enumerate(self._block_views):
+                for cell in col[len(col) + d_height:]:
+                    for b in cell:
+                        b.destroy()
+                self._block_views[i] = col[:len(col) + d_height]
+        else:
+            for col in self._block_views:
+                for _ in range(d_height):
+                    col.append([EmptyBlockView(self._canvas)])
+
+        # Width
+        if d_width < 0:
+            for col in self._block_views[len(self._block_views) + d_width:]:
+                for cell in col:
+                    for b in cell:
+                        b.destroy()
+            self._block_views = self._block_views[:len(self._block_views) + d_width]
+        else:
+            for _ in range(d_width):
+                col = []
+                self._block_views.append(col)
+                for _ in range(size.height):
+                    col.append([EmptyBlockView(self._canvas)])
+            self.draw()
         return True

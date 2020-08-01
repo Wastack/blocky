@@ -26,6 +26,7 @@ class BlockView(ABC):
         if self._rect is not None:
             self.destroy()
         self._rect = self._create_block(pos)
+        self._canvas.tag_lower(self._rect)
         return self._rect
 
     def destroy(self):
