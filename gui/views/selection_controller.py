@@ -1,6 +1,6 @@
 import logging
 from tkinter import Canvas, CURRENT
-from typing import Type
+from typing import Type, Optional
 
 from game.utils.position import Position
 from gui.block_views.block import BLOCK_SIZE, BlockView
@@ -16,8 +16,11 @@ class SelectionController:
         self._selector = Selector(canvas)
         self._exceptions = {}
 
+        self._head: Optional[Position] = None
+
     def register_canvas_events(self):
         self._canvas.bind("<Button-1>", self._clicked)
+        self._canvas.bind("<Control-Button-1>", self._control_clicked)
         self._canvas.bind("<Shift-Button-1>", self._shift_clicked)
 
     def set_exception(self, range: MouseRange, key: str):
@@ -26,6 +29,9 @@ class SelectionController:
     def _in_exception(self, x, y) -> bool:
         return any([e.contains(x, y) for e in self._exceptions.values()])
 
+    def _select(self, pos):
+        self._head = pos
+        self._selector.select(pos)
 
     @staticmethod
     def _mouse_pos_to_game_pos(x, y) -> Position:
@@ -34,14 +40,29 @@ class SelectionController:
     def _shift_clicked(self, mouse_event):
         if self._in_exception(mouse_event.x, mouse_event.y):
             return
+
+        # If no selections were made yet, shift click works pretty much like simple click
+        if self._head is None:
+            self._clicked(mouse_event)
+            return
+
         pos = SelectionController._mouse_pos_to_game_pos(mouse_event.x, mouse_event.y)
-        self._selector.select(pos)
+        for x in range(min(pos.x, self._head.x), max(pos.x, self._head.x) + 1):
+            for y in range(min(pos.y, self._head.y), max(pos.y, self._head.y) + 1):
+                self._selector.select(Position(x, y))
+        self._head = pos
+
+    def _control_clicked(self, mouse_event):
+        if self._in_exception(mouse_event.x, mouse_event.y):
+            return
+        pos = SelectionController._mouse_pos_to_game_pos(mouse_event.x, mouse_event.y)
+        self._select(pos)
 
     def _clicked(self, mouse_event):
         if self._in_exception(mouse_event.x, mouse_event.y):
             return
         self._selector.deselect()
-        self._shift_clicked(mouse_event)
+        self._control_clicked(mouse_event)
     
     def put_block_to_selection(self, block_type: Type[BlockView]):
         if not self._selector.has_selection:

@@ -79,5 +79,8 @@ class MapView:
                 self._block_views.append(col)
                 for _ in range(size.height):
                     col.append([EmptyBlockView(self._canvas)])
+
+        # Need a full redraw if elements were added.
+        if d_width > 0 or d_height > 0:
             self.draw()
         return True
