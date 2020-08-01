@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import List
 
 from game.utils.position import Position
@@ -10,3 +11,15 @@ def rect_from_pos(pos: Position, size = BLOCK_SIZE) -> List[int]:
             pos.x * size + size, pos.y * size + size,
             ]
     return rect
+
+
+@dataclass
+class MouseRange:
+    x1: int
+    y1: int
+    x2: int
+    y2: int
+
+    def contains(self, x:int, y:int):
+        return self.x1 <= x <= self.x2 and self.y1 <= y <= self.y2
+

@@ -6,6 +6,7 @@ import tkinter
 
 from game.json_import.map_schema import MapSchema
 from gui.views.map_view import MapView
+from gui.views.resizer import Resizer
 from gui.views.selection_controller import SelectionController
 from gui.views.palette import Palette
 
@@ -36,6 +37,9 @@ def _create_canvas(window) -> tkinter.Canvas:
 
     selection_controller = SelectionController(canvas, map_view)
     selection_controller.register_canvas_events()
+
+    resizer = Resizer(canvas, map_view, selection_controller)
+    resizer.draw_resizing_rect()
 
     palette_controller = Palette(canvas)
     palette_controller.register_right_mouse(selection_controller.put_block_to_selection)

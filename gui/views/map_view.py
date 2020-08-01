@@ -1,5 +1,6 @@
 from game.gamemap import GameMap
 from game.utils.position import Position
+from game.utils.size import Size
 from gui.block_views import block_view_factory
 from gui.block_views.block import BlockView
 from gui.block_views.empty_block import EmptyBlockView
@@ -38,3 +39,9 @@ class MapView:
         stack = self._block_views[pos.x][pos.y]
         stack.append(block)
         block.draw(pos)
+
+    @property
+    def size(self) -> Size:
+        if not self._block_views:
+            return Size(0, 0)
+        return Size(len(self._block_views), len(self._block_views[0]))
