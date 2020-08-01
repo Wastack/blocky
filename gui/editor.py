@@ -38,7 +38,7 @@ def _create_canvas(window) -> tkinter.Canvas:
     selection_controller = SelectionController(canvas, map_view)
     selection_controller.register_canvas_events()
 
-    resizer = Resizer(canvas, map_view, selection_controller)
+    resizer = Resizer(canvas, map_view, selection_controller, map_view.resize)
     resizer.draw_resizing_rect()
 
     palette_controller = Palette(canvas)

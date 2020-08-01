@@ -1,9 +1,10 @@
 import logging
 from tkinter import Canvas
 from tkinter.font import Font
-from typing import Iterable
+from typing import Iterable, Callable
 
 from game.utils.position import Position
+from game.utils.size import Size
 from gui.utils import BLOCK_SIZE, MouseRange
 from gui.views.map_view import MapView
 
@@ -13,11 +14,13 @@ RESIZING_LABEL_OFFSET = (10, -40)
 RESIZING_LABEL_SIZE = (80, 40)
 RESIZING_LABEL_TAG = "resizing-label-tag"
 
+
 class Resizer:
-    def __init__(self, canvas: Canvas, map_view: MapView, selection_controller):
+    def __init__(self, canvas: Canvas, map_view: MapView, selection_controller, callback: Callable[[Size], bool]):
         self._canvas = canvas
         self._map_view = map_view
         self._selection_controller = selection_controller
+        self._callback = callback
 
         self._resizing_rect_id: int = 0
         """The Id of the Resizing Rectangle which is at the bottom right corner of the currently available map.
@@ -34,6 +37,7 @@ class Resizer:
 
         self._size_label_id: int = 0
         """The Id of a label which represents the proposed map size with numbers."""
+
 
     @property
     def resizing_rect_id(self):
@@ -78,11 +82,10 @@ class Resizer:
             self._canvas.tag_bind(self._resizing_rect_id, event_id, func)
 
     def draw_resizing_rect(self):
-        pos = Position(*self._map_view.size)
-        rect = self._create_resizing_rect(pos)
+        rect = self._create_resizing_rect(self._current_pos)
         self._resizing_rect_id = rect
         self._register_mouse_events()
-        self._selection_controller.set_exception(key="resizer", range=MouseRange(*self._resizing_rect_vertices(pos)))
+        self._selection_controller.set_exception(key="resizer", range=MouseRange(*self._resizing_rect_vertices(self._current_pos)))
 
     def start_resize(self, mouse_e):
         self._create_border()
@@ -94,6 +97,15 @@ class Resizer:
         self._moving_resizing_rect_id = 0
         self._border_id = 0
         self._size_label_id = 0
+
+        if not self._callback:
+            logging.warning("No callback is registered to Resizer object.")
+            return
+
+        succeed = self._callback(Size(width=self._current_pos.x, height=self._current_pos.y))
+        if succeed:
+            self._canvas.delete(self._resizing_rect_id)
+            self.draw_resizing_rect()
 
     def mouse_moved(self, mouse_e):
         new_pos = Position(int(mouse_e.x / BLOCK_SIZE + 0.5), int(mouse_e.y / BLOCK_SIZE + 0.5))
@@ -114,5 +126,3 @@ class Resizer:
         if self._size_label_id != 0:
             self._canvas.delete(self._size_label_id)
         self._create_moving_label()
-
-
