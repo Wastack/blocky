@@ -1,5 +1,6 @@
 import logging
 from tkinter import Canvas
+from tkinter.font import Font
 from typing import Iterable
 
 from game.utils.position import Position
@@ -9,7 +10,7 @@ from gui.views.map_view import MapView
 RESIZING_RECT_SIZE = 10
 
 RESIZING_LABEL_OFFSET = (10, -40)
-RESIZING_LABEL_SIZE = (50, 20)
+RESIZING_LABEL_SIZE = (80, 40)
 RESIZING_LABEL_TAG = "resizing-label-tag"
 
 class Resizer:
@@ -44,12 +45,18 @@ class Resizer:
 
     def _create_moving_label(self) -> None:
         self._size_label_id = RESIZING_LABEL_TAG
-        real_x, real_y = BLOCK_SIZE*self._current_pos.x, BLOCK_SIZE*self._current_pos.y
-        vertices = [real_x + RESIZING_LABEL_OFFSET[0],
-                    real_y + RESIZING_LABEL_OFFSET[1],
-                    real_x + RESIZING_LABEL_SIZE[0] + RESIZING_LABEL_OFFSET[0],
-                    real_y + RESIZING_LABEL_SIZE[1] + RESIZING_LABEL_OFFSET[1]]
+        real_x = BLOCK_SIZE*self._current_pos.x + RESIZING_LABEL_OFFSET[0]
+        real_y = BLOCK_SIZE*self._current_pos.y + RESIZING_LABEL_OFFSET[1]
+        vertices = [real_x,
+                    real_y,
+                    real_x + RESIZING_LABEL_SIZE[0],
+                    real_y + RESIZING_LABEL_SIZE[1]]
         self._canvas.create_rectangle(*vertices, tag=RESIZING_LABEL_TAG, fill="wheat1")
+
+        text = "{}x{}".format(self._current_pos.x, self._current_pos.y)
+        times = Font(family="Times", size=str(RESIZING_LABEL_SIZE[1] // 2), weight="bold")
+        self._canvas.create_text(real_x + RESIZING_LABEL_SIZE[0] // 2, real_y + RESIZING_LABEL_SIZE[1] // 2,
+                                 text=text, fill="DeepSkyBlue4", font=times, tag=RESIZING_LABEL_TAG)
 
     def _create_resizing_rect(self, pos: Position) -> int:
         vs = self._resizing_rect_vertices(pos)
