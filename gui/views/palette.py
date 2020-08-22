@@ -1,4 +1,6 @@
 import logging
+from sys import platform as _platform
+
 from dataclasses import dataclass
 from tkinter import Canvas
 from tkinter.font import Font
@@ -37,6 +39,7 @@ class Palette:
         self._selected_block_index = 0
 
     def _show(self, mouse_event):
+        logging.debug("Right click pressed.")
         self._mouse_pressed_x, self._mouse_pressed_y = mouse_event.x, mouse_event.y
         self._create_palette(mouse_event.x, mouse_event.y)
 
@@ -90,8 +93,13 @@ class Palette:
         """
         Registers right mouse events.
         """
+        logging.info("Palette registered to right click mouse button.")
         self._callback = callback
-        self._canvas.bind("<Button-3>", self._show)
+
+        # On Mac right mouse button is signed by 2 instead of 3
+        right_mouse_id = "2" if _platform == "darwin" else "3"
+
+        self._canvas.bind(f"<Button-{right_mouse_id}>", self._show)
         self._canvas.bind("<Motion>", self._motion)
-        self._canvas.bind("<ButtonRelease-3>", self._catch_and_destroy)
+        self._canvas.bind(f"<ButtonRelease-{right_mouse_id}>", self._catch_and_destroy)
 
