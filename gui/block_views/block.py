@@ -2,9 +2,10 @@ import abc
 import tkinter
 from abc import ABC
 from tkinter.font import Font
-from typing import Any, Optional
+from typing import Any, Optional, List
 
 from game.utils.position import Position
+from gui.block_views.block_capability import BlockCapability
 from gui.utils import rect_from_pos, BLOCK_SIZE
 
 
@@ -33,6 +34,9 @@ class BlockView(ABC):
         self._canvas.delete(self._rect)
         self._rect = None
 
+    @staticmethod
+    def block_capability() -> BlockCapability:
+        return BlockCapability()
 
     @staticmethod
     @abc.abstractmethod

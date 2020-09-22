@@ -28,7 +28,7 @@ def _create_canvas(window) -> tkinter.Canvas:
     canvas.configure(bg="black")
     canvas.pack(fill="both", expand=True)
 
-    with open(os.path.join(pathlib.Path(__file__).parent.parent ,"test/data", "test_stone_4x4.json")) as fp:
+    with open(os.path.join(pathlib.Path(__file__).parent.parent ,"test/data", "test_spike.json")) as fp:
         json_data = json.load(fp)
     schema = MapSchema()
     my_map = schema.load(json_data)

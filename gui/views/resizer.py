@@ -64,7 +64,6 @@ class Resizer:
 
     def _create_resizing_rect(self, pos: Position) -> int:
         vs = self._resizing_rect_vertices(pos)
-        logging.debug("resizing rect vertices: {}".format(vs))
         return self._canvas.create_rectangle(*vs, fill="gray")
 
     def _resizing_rect_vertices(self, pos: Position) -> Iterable[int]:

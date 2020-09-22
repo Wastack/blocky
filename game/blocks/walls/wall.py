@@ -21,11 +21,14 @@ class WallContainer():
     def __init__(self, left: Optional[Wall] = None, up: Optional[Wall] = None,
                  right: Optional[Wall] = None, down: Optional[Wall] = None):
         self._walls = {
-            Direction.LEFT : left,
+            Direction.LEFT: left,
             Direction.UP: up,
             Direction.RIGHT: right,
             Direction.DOWN: down,
         }
+
+    def walls(self):
+        return self._walls
 
     def before_step(self, intruder: Moveable, i : MoveInfo) -> MoveVerdict:
         wall_side = Direction.opposite(i.direction)

@@ -19,3 +19,5 @@ class RockBlock(EmptyBlock):
     def after_step(self, intruder: Moveable, i: MoveInfo):
         self._walls.after_step(intruder, i)
 
+    def wall_container(self) -> WallContainer:
+        return self._walls

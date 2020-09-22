@@ -39,7 +39,6 @@ class Palette:
         self._selected_block_index = 0
 
     def _show(self, mouse_event):
-        logging.debug("Right click pressed.")
         self._mouse_pressed_x, self._mouse_pressed_y = mouse_event.x, mouse_event.y
         self._create_palette(mouse_event.x, mouse_event.y)
 
@@ -48,7 +47,6 @@ class Palette:
 
     def _catch_and_destroy(self, mouse_event):
         index = self._index_from_mouse_y_pos(mouse_event.y)
-        #logging.debug(f"pressed y: {self._mouse_pressed_y}, released y: {mouse_event.y}, index: {index}")
 
         # clear palette
         for elem in self._block_elements:
@@ -59,7 +57,6 @@ class Palette:
         # publish result
         if 0 <= index < len(registered_block_views):
             block_view = registered_block_views[index]
-            logging.info(f"Chosen block is: {block_view.repr()}")
             self._callback(block_view)
 
     def _motion(self, mouse_event):
