@@ -3,10 +3,12 @@ from typing import List
 
 from game.utils.position import Position
 
+WINDOW_WIDTH = 1024
+WINDOW_HEIGHT = 768
 BLOCK_SIZE = 50
 
 
-def rect_from_pos(pos: Position, size = BLOCK_SIZE) -> List[int]:
+def rect_from_pos(pos: Position, size=BLOCK_SIZE) -> List[int]:
     rect = [pos.x * size, pos.y * size,
             pos.x * size + size, pos.y * size + size,
             ]

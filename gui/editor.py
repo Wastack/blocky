@@ -5,13 +5,13 @@ import pathlib
 import tkinter
 
 from game.json_import.map_schema import MapSchema
+from gui.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from gui.views.map_view import MapView
+from gui.views.property_settings import PropertySettings
 from gui.views.resizer import Resizer
 from gui.views.selection_controller import SelectionController
 from gui.views.palette import Palette
 
-_WINDOW_WIDTH = 1024
-_WINDOW_HEIGHT = 768
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -19,7 +19,7 @@ def _create_window() -> tkinter.Tk:
     window = tkinter.Tk()
     window.title("Blocky")
     #window.attributes('-fullscreen', True)
-    window.geometry(f"{_WINDOW_WIDTH}x{_WINDOW_HEIGHT}")
+    window.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
     return window
 
 
@@ -44,6 +44,8 @@ def _create_canvas(window) -> tkinter.Canvas:
     palette_controller = Palette(canvas)
     palette_controller.register_right_mouse(selection_controller.put_block_to_selection)
 
+    property_settings = PropertySettings(canvas)
+    property_settings.draw_settings_window()
 
     return canvas
 
