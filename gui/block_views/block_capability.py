@@ -1,14 +1,11 @@
 from dataclasses import dataclass
-from enum import Enum
-from typing import Optional, FrozenSet
+from typing import Optional, FrozenSet, Type
 
-
-class WallType(Enum):
-    SPIKE = 1
+from gui.block_views.wall_views.wall_view import WallView
 
 
 @dataclass
 class BlockCapability:
-    possible_wall_types: FrozenSet = frozenset()
+    possible_wall_types: FrozenSet[Type[WallView]] = frozenset()
     breaks_after: Optional[int] = None
 

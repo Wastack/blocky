@@ -5,8 +5,9 @@ from game.blocks.impl.rock import RockBlock
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block import BlockView
-from gui.block_views.block_capability import BlockCapability, WallType
+from gui.block_views.block_capability import BlockCapability
 from gui.block_views.wall_views import wall_factory
+from gui.block_views.wall_views.spike import SpikeView
 from gui.block_views.wall_views.wall_view import WallView
 
 
@@ -65,4 +66,4 @@ class RockBlockView(BlockView):
 
     @staticmethod
     def block_capability() -> BlockCapability:
-        return BlockCapability(possible_wall_types=frozenset([WallType.SPIKE]))
+        return BlockCapability(possible_wall_types=frozenset([SpikeView]))
