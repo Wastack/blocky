@@ -44,7 +44,7 @@ def _create_canvas(window) -> tkinter.Canvas:
     palette_controller = Palette(canvas)
     palette_controller.register_right_mouse(selection_controller.put_block_to_selection)
 
-    property_settings = PropertySettings(canvas)
+    property_settings = PropertySettings(canvas, selection_controller)
     property_settings.draw_settings_window()
 
     return canvas
