@@ -84,7 +84,9 @@ class Resizer:
         rect = self._create_resizing_rect(self._current_pos)
         self._resizing_rect_id = rect
         self._register_mouse_events()
-        self._selection_controller.set_exception(key="resizer", range=MouseRange(*self._resizing_rect_vertices(self._current_pos)))
+        self._selection_controller.set_exception(key="resizer",
+                                                 mouse_range=MouseRange(*self._resizing_rect_vertices(self._current_pos)),
+                                                 enable_shift_select=True)
 
     def start_resize(self, mouse_e):
         self._create_border()

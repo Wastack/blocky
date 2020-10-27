@@ -38,7 +38,7 @@ class PropertySettings:
         leftmost_rounded = self._leftmost_pos - self._leftmost_pos % BLOCK_SIZE
         height_rounded = sh//2 - sh//2 % BLOCK_SIZE + BLOCK_SIZE
         self._selection_controller.set_exception(key="Settings_window",
-                                                 range=MouseRange(
+                                                 mouse_range=MouseRange(
                                                      x1=leftmost_rounded,
                                                      y1=0, x2=sw, y2=height_rounded))
 
