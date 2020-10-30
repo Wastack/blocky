@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from game.gamemap import GameMap
 from game.utils.position import Position
@@ -31,13 +32,16 @@ class MapView:
                 for b in cell:
                     b.draw(Position(x, y))
 
+    def cell(self, p: Position) -> List[BlockView]:
+        return self._block_views[p.x][p.y]
+
     def _clear_at(self, pos: Position) -> None:
         stack = self._block_views[pos.x][pos.y]
         for e in stack:
             e.destroy()
         stack.clear()
 
-    def replaceAt(self, pos: Position, block: BlockView):
+    def replace_at(self, pos: Position, block: BlockView):
         self._clear_at(pos)
         stack = self._block_views[pos.x][pos.y]
         stack.append(block)

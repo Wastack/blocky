@@ -1,33 +1,33 @@
 import logging
-from tkinter import Canvas, CURRENT
+from tkinter import Canvas
 from typing import Type, Optional
 
 from game.utils.position import Position
 from gui.block_views.block import BLOCK_SIZE, BlockView
-from gui.selection import Selector
+from gui.controllers.selection_controller import SelectionController
 from gui.utils import MouseRange
 from gui.views.map_view import MapView
 
 
-class SelectionController:
-    def __init__(self, canvas: Canvas, map: MapView):
-        self._map = map
-        self._canvas = canvas
-        self._selector = Selector(canvas)
+class BlockSelectionController(SelectionController):
+    def __init__(self, canvas: Canvas, map_view: MapView):
+        super().__init__(canvas)
+        self._map = map_view
         self._exceptions = {}
 
         self._head: Optional[Position] = None
-
-    def register_canvas_events(self):
-        self._canvas.bind("<Button-1>", self._clicked)
-        self._canvas.bind("<Control-Button-1>", self._control_clicked)
-        self._canvas.bind("<Shift-Button-1>", self._shift_clicked)
 
     def set_exception(self, mouse_range: MouseRange, key: str, enable_shift_select=False):
         self._exceptions[key] = (mouse_range, enable_shift_select)
 
     def _in_exception(self, x, y, shift_candidate: bool = False) -> bool:
-        """Check if mouse position is in exception"""
+        """
+        Check if mouse position is in exception
+        :param x: x mouse position
+        :param y: y mouse position
+        :param shift_candidate: whether mouse position is a part of a range selection or not.
+        :return: Whether block can be selected or not.
+        """
         if shift_candidate:
             ranges = [v for v, shift_enabled in self._exceptions.values() if not shift_enabled]
         else:
@@ -41,9 +41,8 @@ class SelectionController:
         return self._in_exception(*left_most, shift_candidate=shift_candidate) \
             or self._in_exception(*bottom_right, shift_candidate=shift_candidate)
 
-    def _select(self, pos):
-        self._head = pos
-        self._selector.select(pos)
+    def _select_game_pos(self, pos: Position):
+        self._set_selection((pos.x*BLOCK_SIZE, pos.y*BLOCK_SIZE), BLOCK_SIZE, pos)
 
     @staticmethod
     def _mouse_pos_to_game_pos(x, y) -> Position:
@@ -58,30 +57,31 @@ class SelectionController:
             self._clicked(mouse_event)
             return
 
-        pos = SelectionController._mouse_pos_to_game_pos(mouse_event.x, mouse_event.y)
+        pos = BlockSelectionController._mouse_pos_to_game_pos(mouse_event.x, mouse_event.y)
         for x in range(min(pos.x, self._head.x), max(pos.x, self._head.x) + 1):
             for y in range(min(pos.y, self._head.y), max(pos.y, self._head.y) + 1):
                 p = Position(x, y)
                 if self._game_pos_in_exception(p, shift_candidate=True):
                     continue
-                self._selector.select(p)
+                self._select_game_pos(p)
         self._head = pos
 
     def _control_clicked(self, mouse_event):
         if self._in_exception(mouse_event.x, mouse_event.y):
             return
-        pos = SelectionController._mouse_pos_to_game_pos(mouse_event.x, mouse_event.y)
-        self._select(pos)
+        pos = BlockSelectionController._mouse_pos_to_game_pos(mouse_event.x, mouse_event.y)
+        self._select_game_pos(pos)
+        self._head = pos
 
     def _clicked(self, mouse_event):
         if self._in_exception(mouse_event.x, mouse_event.y):
             return
-        self._selector.deselect()
+        self.deselect_all()
         self._control_clicked(mouse_event)
     
     def put_block_to_selection(self, block_type: Type[BlockView]):
-        if not self._selector.has_selection:
+        logging.info("Put block to selection event triggered.")
+        if not self.has_selection():
             return
-        for p in self._selector.positions():
-            logging.debug("Replace with {} at {}".format(block_type, p))
-            self._map.replaceAt(p, block_type(self._canvas))
+        for pos in self.selected_items:
+            self._map.replace_at(pos, block_type(self._canvas))

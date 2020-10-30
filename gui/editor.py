@@ -9,7 +9,7 @@ from gui.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from gui.views.map_view import MapView
 from gui.views.property_settings import PropertySettings
 from gui.views.resizer import Resizer
-from gui.views.selection_controller import SelectionController
+from gui.views.selection_controller import BlockSelectionController
 from gui.views.palette import Palette
 
 
@@ -35,8 +35,8 @@ def _create_canvas(window) -> tkinter.Canvas:
     map_view = MapView(my_map, canvas)
     map_view.draw()
 
-    selection_controller = SelectionController(canvas, map_view)
-    selection_controller.register_canvas_events()
+    selection_controller = BlockSelectionController(canvas, map_view)
+    selection_controller.register_canvas_events(click=True, shift=True, control=True)
 
     resizer = Resizer(canvas, map_view, selection_controller, map_view.resize)
     resizer.draw_resizing_rect()
