@@ -5,7 +5,7 @@ from typing import Optional
 
 from game.utils.direction import Direction
 from gui.utils import WINDOW_WIDTH, BLOCK_SIZE, MouseRange
-from gui.views.selection_controller import BlockSelectionController
+from gui.controllers.block_selection_controller import BlockSelectionController
 
 PROPERTY_SETTINGS_WINDOW_WIDTH = WINDOW_WIDTH // 5
 PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN = 5

@@ -17,10 +17,11 @@ NOT_SELECTED_FILL = "AntiqueWhite1"
 SELECTED_FILL = "Yellow"
 TEXT_FILL = "DeepSkyBlue4"
 
+
 @dataclass
 class _BlockElement:
-    text : int
-    rectangle : int
+    text: int
+    rectangle: int
 
 
 class Palette:
@@ -29,7 +30,8 @@ class Palette:
     """
 
     def __init__(self, canvas: Canvas):
-        self._canvas  = canvas
+        self._canvas = canvas
+        self._callback = None
 
         self._block_elements: List[_BlockElement] = []
 
@@ -69,10 +71,9 @@ class Palette:
         self._canvas.itemconfig(self._block_elements[index].rectangle, fill=SELECTED_FILL)
         self._selected_block_index = index
 
-
     def _create_rect(self, x, y, height, fill):
         background = self._canvas.create_rectangle(x, y,
-                                                   x + PALETTE_WIDTH, y + height , fill=fill)
+                                                   x + PALETTE_WIDTH, y + height, fill=fill)
         return background
 
     def _create_palette(self, mouse_x: int, mouse_y: int) -> None:
@@ -99,4 +100,3 @@ class Palette:
         self._canvas.bind(f"<Button-{right_mouse_id}>", self._show)
         self._canvas.bind("<Motion>", self._motion)
         self._canvas.bind(f"<ButtonRelease-{right_mouse_id}>", self._catch_and_destroy)
-

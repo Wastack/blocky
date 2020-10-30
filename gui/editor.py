@@ -9,7 +9,7 @@ from gui.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from gui.views.map_view import MapView
 from gui.views.property_settings import PropertySettings
 from gui.views.resizer import Resizer
-from gui.views.selection_controller import BlockSelectionController
+from gui.controllers.block_selection_controller import BlockSelectionController
 from gui.views.palette import Palette
 
 
