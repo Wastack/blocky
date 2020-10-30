@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from tkinter import Canvas
 from tkinter.font import Font
@@ -12,6 +13,7 @@ PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN = 5
 
 WALL_SETTINGS_VERTICAL_OFFSET = 35
 WALL_SETTINGS_MARGIN = 10
+WALL_SETTINGS_HEIGHT = 160
 
 
 @dataclass
@@ -48,21 +50,21 @@ class PropertySettings:
         sw, sh = self._canvas.winfo_width(), self._canvas.winfo_height()
         self._leftmost_pos = sw - PROPERTY_SETTINGS_WINDOW_WIDTH
         self._rightmost_pos = sw
+        logging.debug(f"Resizing settings window X: {self._leftmost_pos} to {self._rightmost_pos}")
 
         # Draw border of settings window
         self._drawn_ids.append(
             self._canvas.create_rectangle(self._leftmost_pos, 0,
-                                          sw, sh // 2, fill="#F5F5A8"))
+                                          sw, sh, fill="gray5"))
 
         # Add selection window as an exception for selection controller.
         # One does not simply select a rectangle under the settings window.
         leftmost_rounded = self._leftmost_pos - self._leftmost_pos % BLOCK_SIZE
-        height_rounded = sh // 2 - sh // 2 % BLOCK_SIZE + BLOCK_SIZE
         self._selection_controller.set_exception(key="Settings_window",
                                                  mouse_range=MouseRange(
                                                      x1=leftmost_rounded,
                                                      y1=0, x2=sw,
-                                                     y2=height_rounded))
+                                                     y2=sh))
 
         # Draw text for wall properties part
         times = Font(family="Times", size=str(BLOCK_SIZE // 2), weight="bold")
@@ -72,13 +74,31 @@ class PropertySettings:
         )
 
         # Draw bounding box for wall properties
-        self._draw_bounding_box(y=WALL_SETTINGS_VERTICAL_OFFSET, height=150)
+        self._draw_bounding_box(y=WALL_SETTINGS_VERTICAL_OFFSET, height=WALL_SETTINGS_HEIGHT)
 
         # Draw wall side selector which consists of 4 rectangles
-        # TODO
-        #w, h = 40, 40
-        #top_left = self._leftmost_pos + PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN + WALL_SETTINGS_MARGIN, WALL_SETTINGS_VERTICAL_OFFSET + WALL_SETTINGS_MARGIN
-        #offsets =
+        offsets = [
+            # Upper
+            [1, 0, 3, 1],
+            # Left
+            [0, 1, 1, 3],
+            # Down
+            [1, 3, 3, 4],
+            # Right
+            [3, 1, 4, 3],
+        ]
+        multiplier = WALL_SETTINGS_HEIGHT // 4
+        x_padding = (self._rightmost_pos - self._leftmost_pos - 2 * PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN - WALL_SETTINGS_HEIGHT) // 2
+        for rect_offset in offsets:
+            mo = [r * multiplier for r in rect_offset]
+            self._drawn_ids.append(
+                self._canvas.create_rectangle(mo[0] + self._leftmost_pos + PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN + x_padding,
+                                              mo[1] + WALL_SETTINGS_VERTICAL_OFFSET,
+                                              mo[2] + self._leftmost_pos + PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN + x_padding,
+                                              mo[3] + WALL_SETTINGS_VERTICAL_OFFSET,
+                                              fill="#D4F5A8")
+            )
+
 
     def _on_resize(self, _event):
         self._delete_graphical_objects()
@@ -101,5 +121,5 @@ class PropertySettings:
         self._drawn_ids.append(
             self._canvas.create_rectangle(self._leftmost_pos + PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN, y,
                                           self._rightmost_pos - PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN, y + height,
-                                          fill=None)
+                                          fill="#F5F5A8")
         )
