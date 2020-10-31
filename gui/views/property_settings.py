@@ -1,3 +1,4 @@
+import functools
 import logging
 from dataclasses import dataclass
 from tkinter import Canvas
@@ -81,21 +82,33 @@ class PropertySettings:
                                                  mo[1] + WALL_SETTINGS_VERTICAL_OFFSET,
                                                  mo[2] + self._leftmost_pos + PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN + x_padding,
                                                  mo[3] + WALL_SETTINGS_VERTICAL_OFFSET,
-                                                 fill="#D4F5A8")
+                                                 fill="#D4F5A8",
+                                                 activefill="#EEFFBB")
 
             wall_selector = self._wall_selectors[side]
             wall_selector.gid = rect
-            self._canvas.tag_bind(rect, "<Button-1>", self._toggle_select)
-            self._canvas.tag_bind(rect, tkinter_right_mouse_button(ButtonEventType.CLICK), self._open_wall_palette)
-            self._canvas.tag_bind(rect, tkinter_right_mouse_button(ButtonEventType.RELEASE), self._execute_and_hide_wall_palette)
 
-    def _toggle_select(self, mouse_event):
+            # Register mouse events on wall selectors
+            self._canvas.tag_bind(rect, "<Button-1>",
+                                  functools.partial(self._toggle_select, wall_selector))
+            self._canvas.tag_bind(rect, tkinter_right_mouse_button(ButtonEventType.CLICK),
+                                  functools.partial(self._open_wall_palette, wall_selector))
+            self._canvas.tag_bind(rect, tkinter_right_mouse_button(ButtonEventType.RELEASE),
+                                  functools.partial(self._execute_and_hide_wall_palette, wall_selector))
+
+    def _toggle_select(self, wall_selector: _WallSelection, _mouse_event):
+        wall_selector.is_selected = not wall_selector.is_selected  # toggle
+        if wall_selector.is_selected:
+            # draw border to indicate selected
+            self._canvas.itemconfigure(wall_selector.gid, width=3)
+        else:
+            # undo selection indicator graphic
+            self._canvas.itemconfigure(wall_selector.gid, width=1)
+
+    def _open_wall_palette(self, wall_selector: _WallSelection, _mouse_event):
         raise NotImplementedError()
 
-    def _open_wall_palette(self, mouse_event):
-        raise NotImplementedError()
-
-    def _execute_and_hide_wall_palette(self, mouse_event):
+    def _execute_and_hide_wall_palette(self, wall_selector: _WallSelection, _mouse_event):
         raise NotImplementedError()
 
     def _on_resize(self, _event):
