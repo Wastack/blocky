@@ -83,7 +83,7 @@ class BlockSelectionController(SelectionController):
         self.deselect_all()
         self._control_clicked(mouse_event)
     
-    def put_block_to_selection(self, block_type: Type[BlockView]):
+    def put_block_to_selection(self, block_type: Type[BlockView]) -> None:
         logging.info("Put block to selection event triggered.")
         if not self.has_selection():
             return

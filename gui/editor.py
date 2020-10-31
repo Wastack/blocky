@@ -6,6 +6,7 @@ import tkinter
 from typing import Any
 
 from game.json_import.map_schema import MapSchema
+from gui.block_views.block_view_factory import registered_block_views
 from gui.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from gui.views.map_view import MapView
 from gui.views.property_settings import PropertySettings
@@ -43,7 +44,7 @@ def _create_game_canvas(window) -> tkinter.Canvas:
     resizer = Resizer(canvas, map_view, selection_controller, map_view.resize)
     resizer.draw_resizing_rect()
 
-    palette_controller = Palette(canvas)
+    palette_controller = Palette(canvas, registered_block_views)
     palette_controller.register_right_mouse(selection_controller.put_block_to_selection)
 
     return canvas

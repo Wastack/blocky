@@ -6,9 +6,10 @@ from tkinter.font import Font
 from typing import Optional
 
 from game.utils.direction import Direction
-from gui.utils import WINDOW_WIDTH, BLOCK_SIZE, MouseRange, \
+from gui.block_views.wall_views.wall_factory import registered_wall_views
+from gui.utils import WINDOW_WIDTH, BLOCK_SIZE,\
     tkinter_right_mouse_button, ButtonEventType
-from gui.controllers.block_selection_controller import BlockSelectionController
+from gui.views.palette import Palette
 
 PROPERTY_SETTINGS_WINDOW_WIDTH = WINDOW_WIDTH // 5
 PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN = 5
@@ -43,6 +44,8 @@ class PropertySettings:
             Direction.UP: _WallSelection()
         }
 
+        self._palette = Palette(self._canvas, registered_wall_views)
+
     def draw_settings_window(self):
         # canvas update is needed to query canvas size
         self._canvas.update()
@@ -65,7 +68,10 @@ class PropertySettings:
         )
 
         # Draw bounding box for wall properties
-        self._draw_bounding_box(y=WALL_SETTINGS_VERTICAL_OFFSET, height=WALL_SETTINGS_HEIGHT)
+        box = self._draw_bounding_box(y=WALL_SETTINGS_VERTICAL_OFFSET, height=WALL_SETTINGS_HEIGHT)
+
+        # Register palette to wall settings bounding box
+        self._palette.register_right_mouse(None, box)
 
         # Draw wall side selector which consists of 4 rectangles
         offsets = [
@@ -91,10 +97,10 @@ class PropertySettings:
             # Register mouse events on wall selectors
             self._canvas.tag_bind(rect, "<Button-1>",
                                   functools.partial(self._toggle_select, wall_selector))
-            self._canvas.tag_bind(rect, tkinter_right_mouse_button(ButtonEventType.CLICK),
-                                  functools.partial(self._open_wall_palette, wall_selector))
-            self._canvas.tag_bind(rect, tkinter_right_mouse_button(ButtonEventType.RELEASE),
-                                  functools.partial(self._execute_and_hide_wall_palette, wall_selector))
+
+            # Palette has to be registered to these graphics as well,
+            # because underlying rect won't capture the event.
+            self._palette.register_right_mouse(None, rect)
 
     def _toggle_select(self, wall_selector: _WallSelection, _mouse_event):
         wall_selector.is_selected = not wall_selector.is_selected  # toggle
@@ -104,12 +110,6 @@ class PropertySettings:
         else:
             # undo selection indicator graphic
             self._canvas.itemconfigure(wall_selector.gid, width=1)
-
-    def _open_wall_palette(self, wall_selector: _WallSelection, _mouse_event):
-        raise NotImplementedError()
-
-    def _execute_and_hide_wall_palette(self, wall_selector: _WallSelection, _mouse_event):
-        raise NotImplementedError()
 
     def _on_resize(self, _event):
         self._delete_graphical_objects()
@@ -124,13 +124,15 @@ class PropertySettings:
                 self._canvas.delete(wall_selector.gid)
                 wall_selector.gid = None
 
-    def _draw_bounding_box(self, y: int, height: int):
+    def _draw_bounding_box(self, y: int, height: int) -> int:
         """
         Draws a bounding box from y coordinate with a height. Width of the
         bounding box depends on margin.
+        :return gui of created graphic object
         """
-        self._drawn_ids.append(
-            self._canvas.create_rectangle(self._leftmost_pos + PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN, y,
-                                          self._rightmost_pos - PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN, y + height,
-                                          fill="#F5F5A8")
-        )
+        rect = self._canvas.create_rectangle(
+            self._leftmost_pos + PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN, y,
+            self._rightmost_pos - PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN,
+            y + height, fill="#F5F5A8")
+        self._drawn_ids.append(rect)
+        return rect

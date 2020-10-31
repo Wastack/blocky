@@ -2,11 +2,13 @@ import logging
 
 from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
+from gui.block_views.wall_views.empty_wall_view import EmptyWallView
 from gui.block_views.wall_views.spike import SpikeView
 from gui.block_views.wall_views.wall_view import WallView
 
 registered_wall_views = [
     SpikeView,
+    EmptyWallView,
 ]
 
 

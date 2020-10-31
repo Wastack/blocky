@@ -28,3 +28,6 @@ class SpikeView(WallView):
     def destroy(self) -> None:
         self._canvas.delete(self._wall_id)
 
+    @staticmethod
+    def repr() -> str:
+        return "Spike"

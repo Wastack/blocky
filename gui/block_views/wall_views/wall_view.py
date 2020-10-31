@@ -40,3 +40,8 @@ class WallView(ABC):
     @abstractmethod
     def destroy(self) -> None:
         pass
+
+    @staticmethod
+    @abstractmethod
+    def repr() -> str:
+        return "?????"
