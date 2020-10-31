@@ -42,6 +42,10 @@ class BlockSelectionController(SelectionController):
             or self._in_exception(*bottom_right, shift_candidate=shift_candidate)
 
     def _select_game_pos(self, pos: Position):
+        # Block outside of game map is not selectable
+        if not self._map.size.contains(pos):
+            return
+
         self._set_selection((pos.x*BLOCK_SIZE, pos.y*BLOCK_SIZE), BLOCK_SIZE, pos)
 
     @staticmethod
