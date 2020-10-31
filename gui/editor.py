@@ -16,6 +16,7 @@ from gui.views.palette import Palette
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 def _create_window() -> tkinter.Tk:
     window = tkinter.Tk()
     window.title("Blocky")

@@ -1,5 +1,4 @@
 import logging
-from sys import platform as _platform
 
 from dataclasses import dataclass
 from tkinter import Canvas
@@ -8,6 +7,7 @@ from typing import List, Callable, Type
 
 from gui.block_views.block import BlockView
 from gui.block_views.block_view_factory import registered_block_views
+from gui.utils import tkinter_right_mouse_button, ButtonEventType
 
 PALETTE_WIDTH = 80
 ONE_BLOCK_HEIGHT = 25
@@ -94,9 +94,6 @@ class Palette:
         logging.info("Palette registered to right click mouse button.")
         self._callback = callback
 
-        # On Mac right mouse button is signed by 2 instead of 3
-        right_mouse_id = "2" if _platform == "darwin" else "3"
-
-        self._canvas.bind(f"<Button-{right_mouse_id}>", self._show)
+        self._canvas.bind(tkinter_right_mouse_button(ButtonEventType.CLICK), self._show)
         self._canvas.bind("<Motion>", self._motion)
-        self._canvas.bind(f"<ButtonRelease-{right_mouse_id}>", self._catch_and_destroy)
+        self._canvas.bind(tkinter_right_mouse_button(ButtonEventType.RELEASE), self._catch_and_destroy)
