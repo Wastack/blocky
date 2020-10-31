@@ -3,6 +3,7 @@ import logging
 import os
 import pathlib
 import tkinter
+from typing import Any
 
 from game.json_import.map_schema import MapSchema
 from gui.utils import WINDOW_WIDTH, WINDOW_HEIGHT
@@ -23,10 +24,10 @@ def _create_window() -> tkinter.Tk:
     return window
 
 
-def _create_canvas(window) -> tkinter.Canvas:
+def _create_game_canvas(window) -> tkinter.Canvas:
     canvas = tkinter.Canvas(window)
     canvas.configure(bg="black")
-    canvas.pack(fill="both", expand=True)
+    canvas.pack(fill="both", expand=True, side="left")
 
     with open(os.path.join(pathlib.Path(__file__).parent.parent ,"test/data", "test_spike.json")) as fp:
         json_data = json.load(fp)
@@ -44,15 +45,21 @@ def _create_canvas(window) -> tkinter.Canvas:
     palette_controller = Palette(canvas)
     palette_controller.register_right_mouse(selection_controller.put_block_to_selection)
 
-    property_settings = PropertySettings(canvas, selection_controller)
-    property_settings.draw_settings_window()
+    return canvas
 
+
+def _create_settings_panel(window) -> tkinter.Canvas:
+    canvas = tkinter.Canvas(window, bg="black", width=200)
+    canvas.pack(side="right", fill="y")
+    property_settings = PropertySettings(canvas)
+    property_settings.draw_settings_window()
     return canvas
 
 
 def main():
     window = _create_window()
-    canvas = _create_canvas(window)
+    _create_game_canvas(window)
+    _create_settings_panel(window)
     window.mainloop()
 
 
