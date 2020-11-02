@@ -1,7 +1,7 @@
-from typing import Optional
+from typing import Optional, List
 
 from game.blocks.impl.empty_block import EmptyBlock
-from game.blocks.walls.wall import WallContainer
+from game.blocks.walls.wall import WallContainer, Wall
 from game.move_info import MoveInfo
 from game.moveables.moveable import Moveable
 from game.utils.move_verdict import MoveVerdict
@@ -20,4 +20,7 @@ class RockBlock(EmptyBlock):
         self._walls.after_step(intruder, i)
 
     def wall_container(self) -> WallContainer:
+        return self._walls
+
+    def walls(self) -> Optional[WallContainer]:
         return self._walls

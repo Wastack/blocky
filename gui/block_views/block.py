@@ -4,8 +4,10 @@ from abc import ABC
 from tkinter.font import Font
 from typing import Any, Optional, List
 
+from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block_capability import BlockCapability
+from gui.block_views.wall_views.wall_view import WallView
 from gui.utils import rect_from_pos, BLOCK_SIZE
 
 
@@ -33,6 +35,9 @@ class BlockView(ABC):
     def destroy(self):
         self._canvas.delete(self._rect)
         self._rect = None
+
+    def set_wall(self, side: Direction, wall_view: WallView):
+        pass
 
     @staticmethod
     def block_capability() -> BlockCapability:

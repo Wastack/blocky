@@ -2,8 +2,10 @@ import tkinter
 from typing import Optional, Any
 
 from game.blocks.impl.player import Player
+from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block import BlockView
+from gui.block_views.wall_views.wall_view import WallView
 
 
 class PlayerBlockView(BlockView):
@@ -29,7 +31,7 @@ class PlayerBlockView(BlockView):
             self._canvas.delete(self._text_id)
             self._text_id = None
 
-
     @staticmethod
     def repr() -> str:
         return "Player"
+

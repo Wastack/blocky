@@ -43,4 +43,3 @@ class GameStack(AbstractBlock):
 
     def after_step(self, intruder: Moveable, i: MoveInfo) -> None:
         map(lambda x: x.after_step(intruder, i), self._data)
-

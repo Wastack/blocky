@@ -3,10 +3,12 @@ import logging
 from dataclasses import dataclass
 from tkinter import Canvas
 from tkinter.font import Font
-from typing import Optional
+from typing import Optional, Type
 
 from game.utils.direction import Direction
 from gui.block_views.wall_views.wall_factory import registered_wall_views
+from gui.block_views.wall_views.wall_view import WallView
+from gui.controllers.block_selection_controller import BlockSelectionController
 from gui.utils import WINDOW_WIDTH, BLOCK_SIZE,\
     tkinter_right_mouse_button, ButtonEventType
 from gui.views.palette import Palette
@@ -27,8 +29,9 @@ class _WallSelection:
 
 class PropertySettings:
 
-    def __init__(self, canvas: Canvas):
+    def __init__(self, canvas: Canvas, block_sel_controller: BlockSelectionController):
         self._canvas = canvas
+        self._block_selection_controller = block_sel_controller
         self._drawn_ids = []
 
         # Register to resize event
@@ -71,7 +74,7 @@ class PropertySettings:
         box = self._draw_bounding_box(y=WALL_SETTINGS_VERTICAL_OFFSET, height=WALL_SETTINGS_HEIGHT)
 
         # Register palette to wall settings bounding box
-        self._palette.register_right_mouse(None, box)
+        self._palette.register_right_mouse(self._trigger_palette, box)
 
         # Draw wall side selector which consists of 4 rectangles
         offsets = [
@@ -100,7 +103,16 @@ class PropertySettings:
 
             # Palette has to be registered to these graphics as well,
             # because underlying rect won't capture the event.
-            self._palette.register_right_mouse(None, rect)
+            self._palette.register_right_mouse(self._trigger_palette, rect)
+
+    def _trigger_palette(self, wall_type: Type[WallView]):
+        """
+        Responsible for executing placement of walls after choosing one from
+        the palette.
+        """
+        for side, wall_sel in self._wall_selectors.items():
+            if wall_sel.is_selected:
+                self._block_selection_controller.put_wall_to_selection(side, wall_type)
 
     def _toggle_select(self, wall_selector: _WallSelection, _mouse_event):
         wall_selector.is_selected = not wall_selector.is_selected  # toggle

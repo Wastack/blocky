@@ -96,7 +96,6 @@ class Palette:
         :param item_to_register Item on which the events are to be registered.
             If None, the events will be registered on the canvas.
         """
-        logging.info("Palette registered to right click mouse button.")
         self._callback = callback
 
         register_on = self._canvas if item_to_register is None else item_to_register

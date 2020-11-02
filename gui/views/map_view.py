@@ -7,10 +7,11 @@ from game.utils.size import Size
 from gui.block_views import block_view_factory
 from gui.block_views.block import BlockView
 from gui.block_views.empty_block import EmptyBlockView
+from gui.block_views.wall_views import wall_factory
 
 
 class MapView:
-    def __init__(self, game_map:GameMap, canvas):
+    def __init__(self, game_map: GameMap, canvas):
         self._canvas = canvas
         self._block_views = []
         for column in game_map._blocks[:]:
@@ -27,6 +28,7 @@ class MapView:
                         view_stack.append(block_view_factory.from_block(block, canvas))
 
     def draw(self):
+        # TODO clear previous
         for x, col in enumerate(self._block_views):
             for y, cell in enumerate(col):
                 for b in cell:

@@ -47,21 +47,15 @@ def _create_game_canvas(window) -> tkinter.Canvas:
     palette_controller = Palette(canvas, registered_block_views)
     palette_controller.register_right_mouse(selection_controller.put_block_to_selection)
 
-    return canvas
-
-
-def _create_settings_panel(window) -> tkinter.Canvas:
-    canvas = tkinter.Canvas(window, bg="black", width=200)
-    canvas.pack(side="right", fill="y")
-    property_settings = PropertySettings(canvas)
+    settings_canvas = tkinter.Canvas(window, bg="black", width=200)
+    settings_canvas.pack(side="right", fill="y")
+    property_settings = PropertySettings(settings_canvas, selection_controller)
     property_settings.draw_settings_window()
-    return canvas
 
 
 def main():
     window = _create_window()
     _create_game_canvas(window)
-    _create_settings_panel(window)
     window.mainloop()
 
 
