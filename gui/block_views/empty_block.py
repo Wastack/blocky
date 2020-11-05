@@ -1,11 +1,10 @@
 import tkinter
 from typing import Optional, Any
 
+from game.blocks.block import AbstractBlock
 from game.blocks.impl.empty_block import EmptyBlock
-from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block import BlockView
-from gui.block_views.wall_views.wall_view import WallView
 
 
 class EmptyBlockView(BlockView):
@@ -27,3 +26,6 @@ class EmptyBlockView(BlockView):
     @staticmethod
     def repr() -> str:
         return "Empty block"
+
+    def to_game_block(self) -> AbstractBlock:
+        return EmptyBlock()

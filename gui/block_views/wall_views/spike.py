@@ -3,6 +3,7 @@ import tkinter
 from typing import Any, Optional
 
 from game.blocks.walls.killer_wall import KillerWall
+from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.wall_views.wall_view import WallView
@@ -36,3 +37,6 @@ class SpikeView(WallView):
     @staticmethod
     def repr() -> str:
         return "Spike"
+
+    def to_game_wall(self) -> Wall:
+        return KillerWall()

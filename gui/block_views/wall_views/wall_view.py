@@ -1,7 +1,8 @@
 import tkinter
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
+from game.blocks.walls.wall import Wall, WallContainer
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.utils import BLOCK_SIZE
@@ -34,10 +35,21 @@ class WallView(ABC):
         return p1, p2
 
     @staticmethod
+    def to_wall_container(wall_view_dict: Dict[Direction, 'WallView']):
+        return WallContainer(left=wall_view_dict.get(Direction.LEFT),
+                             up=wall_view_dict.get(Direction.UP),
+                             right=wall_view_dict.get(Direction.RIGHT),
+                             down=wall_view_dict.get(Direction.DOWN))
+
+    @staticmethod
     @abstractmethod
-    def from_wall(canvas: tkinter.Canvas, wall,
+    def from_wall(canvas: tkinter.Canvas, wall: Wall,
                   direction: Direction) -> Optional['WallView']:
         return
+
+    @abstractmethod
+    def to_game_wall(self) -> Wall:
+        pass
 
     @abstractmethod
     def draw(self, pos: Position) -> Any:

@@ -4,6 +4,7 @@ from abc import ABC
 from tkinter.font import Font
 from typing import Any, Optional, List
 
+from game.blocks.block import AbstractBlock
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block_capability import BlockCapability
@@ -52,3 +53,7 @@ class BlockView(ABC):
     @abc.abstractmethod
     def from_block(canvas: tkinter.Canvas, block) -> Optional['BlockView']:
         return
+
+    @abc.abstractmethod
+    def to_game_block(self) -> AbstractBlock:
+        pass

@@ -1,6 +1,7 @@
 import tkinter
 from typing import Optional, Any
 
+from game.blocks.block import AbstractBlock
 from game.blocks.impl.player import Player
 from game.utils.direction import Direction
 from game.utils.position import Position
@@ -34,4 +35,7 @@ class PlayerBlockView(BlockView):
     @staticmethod
     def repr() -> str:
         return "Player"
+
+    def to_game_block(self) -> AbstractBlock:
+        return Player()
 

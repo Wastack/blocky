@@ -1,6 +1,7 @@
 import tkinter
 from typing import Any, Optional
 
+from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.wall_views.wall_view import WallView
@@ -24,3 +25,6 @@ class EmptyWallView(WallView):
     @staticmethod
     def repr() -> str:
         return "Empty"
+
+    def to_game_wall(self) -> Wall:
+        return None

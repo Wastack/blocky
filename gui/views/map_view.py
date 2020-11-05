@@ -90,3 +90,11 @@ class MapView:
         if d_width > 0 or d_height > 0:
             self.draw()
         return True
+
+    def to_game_map(self) -> GameMap:
+        game_map = GameMap(self.size)
+        for x, row in enumerate(self._block_views):
+            for y, cell in enumerate(row):
+                for block_view in cell:
+                    game_map.putBlock(Position(x, y), block_view.to_game_block())
+        return game_map

@@ -1,8 +1,9 @@
-import logging
 import tkinter
 from typing import Optional, Any, Dict
 
+from game.blocks.block import AbstractBlock
 from game.blocks.impl.rock import RockBlock
+from game.blocks.walls.wall import WallContainer
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block import BlockView
@@ -80,3 +81,6 @@ class RockBlockView(BlockView):
         if isinstance(wall_view, EmptyWallView):
             return
         self._wall_views[side] = wall_view
+
+    def to_game_block(self) -> AbstractBlock:
+        return RockBlock(WallView.to_wall_container(self._wall_views))
