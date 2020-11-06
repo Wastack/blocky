@@ -65,7 +65,6 @@ class MapView:
     def resize(self, size: Size) -> bool:
         current = self.size
         d_width, d_height = size.width - current.width, size.height - current.height
-        logging.debug("Diff: width: {}, height: {}".format(d_width, d_height))
 
         # Height
         if d_height < 0:

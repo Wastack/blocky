@@ -25,7 +25,7 @@ logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 
 class EditorGUI:
     def __init__(self):
-        self._canvas = None
+        self._game_canvas = None
         self._game_map: Optional[MapView] = None
         self._resizer: Resizer = None
         self._palette_controller = None
@@ -35,7 +35,16 @@ class EditorGUI:
 
     def show(self):
         self._create_window()
-        self._create_game_canvas()
+
+        # Load a test data for debugging
+        with open(
+                os.path.join(pathlib.Path(__file__).parent.parent, "test/data",
+                             "test_spike.json")) as fp:
+            json_data = json.load(fp)
+        schema = MapSchema()
+        map_model = schema.load(json_data)
+
+        self._reset_canvas(map_model)
         self._create_menu()
 
         # Waiting for events. Blocks the execution
@@ -48,46 +57,61 @@ class EditorGUI:
         # window.attributes('-fullscreen', True)
         self._window.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
 
-    def _create_game_canvas(self) -> None:
-        logging.info("Create editor canvas")
-        if not self._canvas:
-            self._canvas = tkinter.Canvas(self._window)
-            self._canvas.configure(bg="black")
-            self._canvas.pack(fill="both", expand=True, side="left")
+    def _reset_canvas(self, game_model: GameMap) -> None:
+        """
+        Resets the whole screen. It first creates the new widgets and destroy the previous afterwards.
+        This behaviour prevents glitches.
+        """
+        logging.info("Reset game canvas")
 
-        if not self._game_map:
-            with open(
-                    os.path.join(pathlib.Path(__file__).parent.parent, "test/data",
-                                 "test_spike.json")) as fp:
-                json_data = json.load(fp)
-            schema = MapSchema()
-            map_model = schema.load(json_data)
-            self._game_map = MapView(map_model, self._canvas)
-            self._game_map.draw()
+        # Game Canvas
+        if not self._game_canvas:
+            self._game_canvas = tkinter.Canvas(self._window)
+            self._game_canvas.configure(bg="black")
+            self._game_canvas.pack(fill="both", expand=True, side="left")
 
-        if not self._selection_controller:
-            self._selection_controller = BlockSelectionController(self._canvas, self._game_map)
-            self._selection_controller.register_canvas_events(click=True, shift=True,
-                                                    control=True)
+        # Game Map
+        gm = MapView(game_model, self._game_canvas)
+        gm.draw()
+        if self._game_map:
+            self._game_map.destroy()
+        self._game_map = gm
 
-        if not self._resizer:
-            self._resizer = Resizer(self._canvas, self._game_map, self._selection_controller,
-                              self._game_map.resize)
-            self._resizer.draw_resizing_rect()
+        # Selection Controller
+        sc = BlockSelectionController(self._game_canvas, self._game_map)
+        sc.register_canvas_events(click=True, shift=True,
+                                                          control=True)
+        if self._selection_controller:
+            self._selection_controller.destroy()
+        self._selection_controller = sc
 
-        if not self._palette_controller:
-            self._palette_controller = Palette(self._canvas, registered_block_views)
-            self._palette_controller.register_right_mouse(
-                self._selection_controller.put_block_to_selection)
+        # Resizer (Controller)
+        r = Resizer(self._game_canvas, self._game_map, self._selection_controller,
+                    self._game_map.resize)
+        r.draw_resizing_rect()
+        if self._resizer:
+            self._resizer.destroy()
+        self._resizer = r
 
+        # Palette Controller
+        pc = Palette(self._game_canvas, registered_block_views)
+        pc.register_right_mouse(self._selection_controller.put_block_to_selection)
+        if self._palette_controller:
+            self._palette_controller.destroy()
+        self._palette_controller = pc
+
+        # Settings canvas
         if not self._settings_canvas:
             self._settings_canvas = tkinter.Canvas(self._window, bg="black", width=200)
             self._settings_canvas.pack(side="right", fill="y")
 
-        if not self._property_settings:
-            self._property_settings = PropertySettings(self._settings_canvas,
-                                                 self._selection_controller)
-            self._property_settings.draw_settings_window()
+        # Property Settings (Controller)
+        ps = PropertySettings(self._settings_canvas,
+                                             self._selection_controller)
+        ps.draw_settings_window()
+        if self._property_settings:
+            self._property_settings.destroy()
+        self._property_settings = ps
 
     def _create_menu(self):
         logging.info("Create window menu")
@@ -130,10 +154,7 @@ class EditorGUI:
                 # User wants to save file first.
                 # TODO is it a save as?
                 self._save_map_as()
-        self._clear_game_canvas()
-        self._game_map = MapView(game_map=GameMap(Size(1, 1)), canvas=self._canvas)
-        self._game_map.draw()
-        self._create_game_canvas()
+        self._reset_canvas(GameMap(Size(1, 1)))
 
     def _open_map(self):
         raise NotImplementedError()
@@ -145,7 +166,7 @@ class EditorGUI:
         pass
 
     def _clear_game_canvas(self):
-        if not self._canvas:
+        if not self._game_canvas:
             return
         if self._game_map:
             self._game_map.destroy()
