@@ -147,3 +147,6 @@ class PropertySettings:
             y + height, fill="#F5F5A8")
         self._drawn_ids.append(rect)
         return rect
+
+    def destroy(self):
+        self._delete_graphical_objects()

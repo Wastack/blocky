@@ -95,7 +95,6 @@ class BlockSelectionController(SelectionController):
 
     def put_wall_to_selection(self, side: Direction, wall_type: Type[WallView]) -> None:
         logging.info("Put wall to selection event triggered.")
-        logging.debug(f"wall type: {wall_type}, side: {side}")
         if not self.has_selection():
             return
         for pos in self.selected_items:
@@ -103,4 +102,3 @@ class BlockSelectionController(SelectionController):
                 if wall_type in block.block_capability().possible_wall_types or wall_type == EmptyWallView:
                     block.set_wall(side, wall_type(self._canvas, side))
         self._map.draw()
-

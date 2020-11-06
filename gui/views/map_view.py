@@ -43,6 +43,13 @@ class MapView:
             e.destroy()
         stack.clear()
 
+    def destroy(self):
+        for x, col in enumerate(self._block_views):
+            for y, cell in enumerate(col):
+                for b in cell:
+                    b.destroy()
+
+
     def replace_at(self, pos: Position, block: BlockView):
         self._clear_at(pos)
         stack = self._block_views[pos.x][pos.y]

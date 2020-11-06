@@ -3,8 +3,13 @@ import logging
 import os
 import pathlib
 import tkinter
+from tkinter import messagebox
 
+from typing import Optional
+
+from game.gamemap import GameMap
 from game.json_import.map_schema import MapSchema
+from game.utils.size import Size
 from gui.block_views.block_view_factory import registered_block_views
 from gui.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from gui.views.map_view import MapView
@@ -20,7 +25,13 @@ logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 
 class EditorGUI:
     def __init__(self):
-        pass
+        self._canvas = None
+        self._game_map: Optional[MapView] = None
+        self._resizer: Resizer = None
+        self._palette_controller = None
+        self._selection_controller = None
+        self._settings_canvas = None
+        self._property_settings = None
 
     def show(self):
         self._create_window()
@@ -39,36 +50,44 @@ class EditorGUI:
 
     def _create_game_canvas(self) -> None:
         logging.info("Create editor canvas")
-        canvas = tkinter.Canvas(self._window)
-        canvas.configure(bg="black")
-        canvas.pack(fill="both", expand=True, side="left")
+        if not self._canvas:
+            self._canvas = tkinter.Canvas(self._window)
+            self._canvas.configure(bg="black")
+            self._canvas.pack(fill="both", expand=True, side="left")
 
-        with open(
-                os.path.join(pathlib.Path(__file__).parent.parent, "test/data",
-                             "test_spike.json")) as fp:
-            json_data = json.load(fp)
-        schema = MapSchema()
-        my_map = schema.load(json_data)
-        map_view = MapView(my_map, canvas)
-        map_view.draw()
+        if not self._game_map:
+            with open(
+                    os.path.join(pathlib.Path(__file__).parent.parent, "test/data",
+                                 "test_spike.json")) as fp:
+                json_data = json.load(fp)
+            schema = MapSchema()
+            map_model = schema.load(json_data)
+            self._game_map = MapView(map_model, self._canvas)
+            self._game_map.draw()
 
-        selection_controller = BlockSelectionController(canvas, map_view)
-        selection_controller.register_canvas_events(click=True, shift=True,
+        if not self._selection_controller:
+            self._selection_controller = BlockSelectionController(self._canvas, self._game_map)
+            self._selection_controller.register_canvas_events(click=True, shift=True,
                                                     control=True)
 
-        resizer = Resizer(canvas, map_view, selection_controller,
-                          map_view.resize)
-        resizer.draw_resizing_rect()
+        if not self._resizer:
+            self._resizer = Resizer(self._canvas, self._game_map, self._selection_controller,
+                              self._game_map.resize)
+            self._resizer.draw_resizing_rect()
 
-        palette_controller = Palette(canvas, registered_block_views)
-        palette_controller.register_right_mouse(
-            selection_controller.put_block_to_selection)
+        if not self._palette_controller:
+            self._palette_controller = Palette(self._canvas, registered_block_views)
+            self._palette_controller.register_right_mouse(
+                self._selection_controller.put_block_to_selection)
 
-        settings_canvas = tkinter.Canvas(self._window, bg="black", width=200)
-        settings_canvas.pack(side="right", fill="y")
-        property_settings = PropertySettings(settings_canvas,
-                                             selection_controller)
-        property_settings.draw_settings_window()
+        if not self._settings_canvas:
+            self._settings_canvas = tkinter.Canvas(self._window, bg="black", width=200)
+            self._settings_canvas.pack(side="right", fill="y")
+
+        if not self._property_settings:
+            self._property_settings = PropertySettings(self._settings_canvas,
+                                                 self._selection_controller)
+            self._property_settings.draw_settings_window()
 
     def _create_menu(self):
         logging.info("Create window menu")
@@ -102,7 +121,19 @@ class EditorGUI:
         self._window.config(menu=menu_bar)
 
     def _edit_new_map(self):
-        raise NotImplementedError()
+        if self._game_map is not None and (self._game_map.size.width > 1 or self._game_map.size.height > 1):
+            # Warning/confirmation of lost data
+            popup_result = tkinter.messagebox.askyesnocancel(title="Blocky", message="Current map is not saved. Wanna save it?")
+            if popup_result is None:
+                return
+            if popup_result:
+                # User wants to save file first.
+                # TODO is it a save as?
+                self._save_map_as()
+        self._clear_game_canvas()
+        self._game_map = MapView(game_map=GameMap(Size(1, 1)), canvas=self._canvas)
+        self._game_map.draw()
+        self._create_game_canvas()
 
     def _open_map(self):
         raise NotImplementedError()
@@ -111,7 +142,26 @@ class EditorGUI:
         raise NotImplementedError()
 
     def _save_map_as(self):
-        raise NotImplementedError()
+        pass
+
+    def _clear_game_canvas(self):
+        if not self._canvas:
+            return
+        if self._game_map:
+            self._game_map.destroy()
+            self._game_map = None
+        if self._selection_controller:
+            self._selection_controller.destroy()
+            self._selection_controller = None
+        if self._palette_controller:
+            self._palette_controller.destroy()
+            self._palette_controller = None
+        if self._resizer:
+            self._resizer.destroy()
+            self._resizer = None
+        if self._property_settings:
+            self._property_settings.destroy()
+            self._property_settings = None
 
 
 def main():

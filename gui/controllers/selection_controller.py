@@ -1,4 +1,3 @@
-import logging
 from abc import ABC, abstractmethod
 from tkinter import Canvas
 from typing import List, Any, Iterable
@@ -46,3 +45,6 @@ class SelectionController(ABC):
     @abstractmethod
     def _shift_clicked(self, mouse_event):
         raise NotImplementedError
+
+    def destroy(self):
+        self.deselect_all()

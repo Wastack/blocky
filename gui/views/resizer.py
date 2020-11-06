@@ -127,3 +127,14 @@ class Resizer:
         if self._size_label_id != 0:
             self._canvas.delete(self._size_label_id)
         self._create_moving_label()
+
+    def refresh(self):
+        if self._resizing_rect_id:
+            self._canvas.delete(self._resizing_rect_id)
+        self._current_pos = Position(self._map_view.size.width, self._map_view.size.height)
+        self.draw_resizing_rect()
+
+    def destroy(self):
+        if self._resizing_rect_id:
+            self._canvas.delete(self._resizing_rect_id)
+            self._resizing_rect_id = None

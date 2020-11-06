@@ -51,10 +51,7 @@ class Palette:
         index = self._index_from_mouse_y_pos(mouse_event.y)
 
         # clear palette
-        for elem in self._block_elements:
-            self._canvas.delete(elem.text)
-            self._canvas.delete(elem.rectangle)
-        self._block_elements = []
+        self.destroy()
 
         # publish result
         if 0 <= index < len(self._items):
@@ -108,3 +105,9 @@ class Palette:
         bind_fun(tkinter_right_mouse_button(ButtonEventType.CLICK), self.show)
         bind_fun("<Motion>", self._motion)
         bind_fun(tkinter_right_mouse_button(ButtonEventType.RELEASE), self.catch_and_destroy)
+
+    def destroy(self):
+        for elem in self._block_elements:
+            self._canvas.delete(elem.text)
+            self._canvas.delete(elem.rectangle)
+        self._block_elements = []
