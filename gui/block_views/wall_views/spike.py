@@ -25,12 +25,10 @@ class SpikeView(WallView):
     def draw(self, pos: Position) -> Any:
         p1, p2 = WallView.calc_real_pos(pos, self._direction)
         self._wall_id = self._canvas.create_line(*p1, *p2, width=6, fill="red")
-        logging.debug("Rock block drawn")
         return self._wall_id
 
     def destroy(self) -> None:
         if self._wall_id:
-            logging.debug("Spike destroyed")
             self._canvas.delete(self._wall_id)
         self._wall_id = None
 

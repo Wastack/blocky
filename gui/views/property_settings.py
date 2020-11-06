@@ -56,7 +56,6 @@ class PropertySettings:
         sw, sh = self._canvas.winfo_width(), self._canvas.winfo_height()
         self._leftmost_pos = sw - PROPERTY_SETTINGS_WINDOW_WIDTH
         self._rightmost_pos = sw
-        logging.debug(f"Resizing settings window X: {self._leftmost_pos} to {self._rightmost_pos}")
 
         # Draw border of settings window
         self._drawn_ids.append(
