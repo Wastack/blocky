@@ -1,13 +1,13 @@
-from typing import Optional, List
+from typing import Optional
 
-from game.blocks.impl.empty_block import EmptyBlock
-from game.blocks.walls.wall import WallContainer, Wall
+from game.blocks.block import AbstractBlock
+from game.blocks.walls.wall import WallContainer
 from game.move_info import MoveInfo
 from game.moveables.moveable import Moveable
 from game.utils.move_verdict import MoveVerdict
 
 
-class RockBlock(EmptyBlock):
+class RockBlock(AbstractBlock):
     def __init__(self, walls: Optional[WallContainer] = None):
         self._walls = walls if walls is not None else WallContainer()
 

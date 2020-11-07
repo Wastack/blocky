@@ -36,10 +36,12 @@ class WallView(ABC):
 
     @staticmethod
     def to_wall_container(wall_view_dict: Dict[Direction, 'WallView']):
-        return WallContainer(left=wall_view_dict.get(Direction.LEFT),
-                             up=wall_view_dict.get(Direction.UP),
-                             right=wall_view_dict.get(Direction.RIGHT),
-                             down=wall_view_dict.get(Direction.DOWN))
+        params = {}
+        for side, wall_view in wall_view_dict.items():
+            if wall_view is None:
+                continue
+            params[side.value] = wall_view.to_game_wall()
+        return WallContainer(**params)
 
     @staticmethod
     @abstractmethod

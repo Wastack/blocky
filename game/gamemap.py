@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable, Tuple, List
+from typing import Iterable, Tuple, List, Dict
 
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.deadly import DeadlyRockBlock
@@ -27,6 +27,13 @@ class GameMap:
             return DeadlyRockBlock()
         return self._blocks[pos.x][pos.y]
 
+    def blocks(self) -> Dict[Position, GameStack]:
+        res = {}
+        for x, r in enumerate(self._blocks):
+            for y, c in enumerate(r):
+                res[Position(x, y)] = c
+        return res
+
     def _block_as_stack(self, pos: Position) -> GameStack:
         if pos.x >= self._map_size.width or pos.x < 0 or \
                 pos.y >= self._map_size.height or pos.y < 0:
@@ -46,3 +53,6 @@ class GameMap:
             raise GameError('Block should be a stack object. PutBlock target might be out of bounds.')
         self.putBlock(pos_to, cell.pop())
 
+    @property
+    def size(self) -> Size:
+        return self._map_size

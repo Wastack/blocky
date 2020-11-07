@@ -4,7 +4,7 @@ import os
 import pathlib
 import tkinter
 from tkinter import messagebox
-
+from tkinter import filedialog
 from typing import Optional
 
 from game.gamemap import GameMap
@@ -163,7 +163,16 @@ class EditorGUI:
         raise NotImplementedError()
 
     def _save_map_as(self):
-        pass
+        if not self._game_map:
+            err_msg = "Attempt to save when there is no game map loaded."
+            logging.error(err_msg)
+            raise RuntimeError(err_msg)
+        schema = MapSchema()
+        map_model = self._game_map.to_game_map()
+        logging.debug(map_model)
+        json_string = schema.dumps(map_model)
+        with filedialog.asksaveasfile() as f:
+            f.write(json_string)
 
     def _clear_game_canvas(self):
         if not self._game_canvas:

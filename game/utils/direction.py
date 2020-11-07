@@ -2,11 +2,11 @@ from enum import Enum
 
 
 class Direction(Enum):
-    UP = 1
-    DOWN = 2
-    LEFT = 3
-    RIGHT = 4
-    DEFAULT = 0
+    UP = "up"
+    DOWN = "down"
+    LEFT = "left"
+    RIGHT = "right"
+    DEFAULT = "default"
 
     @staticmethod
     def opposite(d: 'Direction') -> 'Direction':

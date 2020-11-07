@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from game.blocks.block import AbstractBlock
@@ -13,6 +14,8 @@ class GameStack(AbstractBlock):
         self._data: List[AbstractBlock] = []
 
     def push(self, block: AbstractBlock):
+        if isinstance(block, EmptyBlock):
+            return
         self._data.append(block)
 
     def pop(self) -> AbstractBlock:
@@ -22,7 +25,7 @@ class GameStack(AbstractBlock):
         return block
 
     def top(self) -> AbstractBlock:
-        if self._data == []:
+        if not self._data:
             return EmptyBlock()
         return self._data[-1]
 

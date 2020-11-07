@@ -1,4 +1,3 @@
-import logging
 from typing import List
 
 from game.gamemap import GameMap
@@ -7,7 +6,6 @@ from game.utils.size import Size
 from gui.block_views import block_view_factory
 from gui.block_views.block import BlockView
 from gui.block_views.empty_block import EmptyBlockView
-from gui.block_views.wall_views import wall_factory
 
 
 class MapView:
@@ -48,7 +46,6 @@ class MapView:
             for y, cell in enumerate(col):
                 for b in cell:
                     b.destroy()
-
 
     def replace_at(self, pos: Position, block: BlockView):
         self._clear_at(pos)
