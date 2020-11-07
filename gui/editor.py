@@ -171,7 +171,10 @@ class EditorGUI:
         map_model = self._game_map.to_game_map()
         logging.debug(map_model)
         json_string = schema.dumps(map_model)
-        with filedialog.asksaveasfile() as f:
+        filename = filedialog.asksaveasfilename()
+        if not filename:
+            return  # User probably cancelled the dialog
+        with open(filename, "w") as f:
             f.write(json_string)
 
     def _clear_game_canvas(self):
