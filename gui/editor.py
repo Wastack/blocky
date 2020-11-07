@@ -145,6 +145,19 @@ class EditorGUI:
         self._window.config(menu=menu_bar)
 
     def _edit_new_map(self):
+        self._handle_not_saved_current_map()
+        self._reset_canvas(GameMap(Size(1, 1)))
+
+    def _open_map(self):
+        self._handle_not_saved_current_map()
+        filename = filedialog.askopenfilename()
+        with open(filename, "r") as f:
+            json_data = json.load(f)
+        schema = MapSchema()
+        my_map = schema.load(json_data)
+        self._reset_canvas(my_map)
+
+    def _handle_not_saved_current_map(self):
         if self._game_map is not None and (self._game_map.size.width > 1 or self._game_map.size.height > 1):
             # Warning/confirmation of lost data
             popup_result = tkinter.messagebox.askyesnocancel(title="Blocky", message="Current map is not saved. Wanna save it?")
@@ -154,10 +167,6 @@ class EditorGUI:
                 # User wants to save file first.
                 # TODO is it a save as?
                 self._save_map_as()
-        self._reset_canvas(GameMap(Size(1, 1)))
-
-    def _open_map(self):
-        raise NotImplementedError()
 
     def _save_map(self):
         raise NotImplementedError()
