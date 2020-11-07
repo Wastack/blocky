@@ -71,6 +71,8 @@ class RockSchema(Schema):
             if val is None:
                 continue
             result[direction.value] = val
+        if not result:
+            return {}
         return {"walls": result}
 
 

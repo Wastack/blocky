@@ -1,11 +1,19 @@
 {
-    "map_size" : {
-      "width" : 5,
-      "height" : 1
+    "map_size": {
+        "width": 5,
+        "height": 1
     },
-    "blocks" :
-    [
-        {"type" : "Anna", "pos" : {"x" : 0, "y": 0} }
+    "cells": [
+        {
+            "blocks": [
+                {
+                    "type": "Anna"
+                }
+            ],
+            "pos": {
+                "x": 0,
+                "y": 0
+            }
+        }
     ]
-
 }
