@@ -119,7 +119,7 @@ class EditorGUI:
         file_menu = tkinter.Menu(menu_bar, tearoff=0)
         file_menu.add_command(label="New", command=self._edit_new_map)
         file_menu.add_command(label="Open", command=self._open_map)
-        file_menu.add_command(label="Save", command=self._save_map)
+        file_menu.add_command(label="Save", command=self._save_map, state="disabled")
         file_menu.add_command(label="Save as...", command=self._save_map_as)
 
         file_menu.add_separator()
@@ -127,21 +127,28 @@ class EditorGUI:
         file_menu.add_command(label="Exit", command=self._window.quit)
         menu_bar.add_cascade(label="File", menu=file_menu)
         edit_menu = tkinter.Menu(menu_bar, tearoff=0)
-        edit_menu.add_command(label="Undo")
+        edit_menu.add_command(label="Undo", state="disabled")
 
         edit_menu.add_separator()
 
-        edit_menu.add_command(label="Cut")
-        edit_menu.add_command(label="Copy")
-        edit_menu.add_command(label="Paste")
-        edit_menu.add_command(label="Delete")
-        edit_menu.add_command(label="Select All")
+        edit_menu.add_command(label="Cut", state="disabled")
+        edit_menu.add_command(label="Copy", state="disabled")
+        edit_menu.add_command(label="Paste", state="disabled")
+        edit_menu.add_command(label="Delete", state="disabled")
+        edit_menu.add_command(label="Select All", state="disabled")
 
         menu_bar.add_cascade(label="Edit", menu=edit_menu)
         help_menu = tkinter.Menu(menu_bar, tearoff=0)
-        help_menu.add_command(label="Help Index")
-        help_menu.add_command(label="About...")
-        menu_bar.add_cascade(label="Help")
+        help_menu.add_command(label="Help Index", state="disabled")
+        help_menu.add_command(label="About...", state="disabled")
+        menu_bar.add_cascade(label="Help", state="disabled")
+
+        game_menu = tkinter.Menu(menu_bar, tearoff=0)
+        game_menu.add_command(label="Start", state="disabled")
+        menu_bar.add_cascade(label="Game", menu=game_menu)
+
+
+
         self._window.config(menu=menu_bar)
 
     def _edit_new_map(self):
