@@ -1,5 +1,4 @@
 import functools
-import logging
 from dataclasses import dataclass
 from tkinter import Canvas
 from tkinter.font import Font
@@ -9,8 +8,7 @@ from game.utils.direction import Direction
 from gui.block_views.wall_views.wall_factory import registered_wall_views
 from gui.block_views.wall_views.wall_view import WallView
 from gui.controllers.block_selection_controller import BlockSelectionController
-from gui.utils import WINDOW_WIDTH, BLOCK_SIZE,\
-    tkinter_right_mouse_button, ButtonEventType
+from gui.utils import WINDOW_WIDTH, BLOCK_SIZE
 from gui.views.palette import Palette
 
 PROPERTY_SETTINGS_WINDOW_WIDTH = WINDOW_WIDTH // 5
@@ -48,6 +46,7 @@ class PropertySettings:
         }
 
         self._palette = Palette(self._canvas, registered_wall_views)
+        self._hidden = False
 
     def draw_settings_window(self):
         # canvas update is needed to query canvas size
@@ -94,6 +93,8 @@ class PropertySettings:
                                                  activefill="#EEFFBB")
 
             wall_selector = self._wall_selectors[side]
+            if wall_selector.gid is not None:
+                self._canvas.delete(wall_selector.gid)
             wall_selector.gid = rect
 
             # Register mouse events on wall selectors
@@ -123,8 +124,9 @@ class PropertySettings:
             self._canvas.itemconfigure(wall_selector.gid, width=1)
 
     def _on_resize(self, _event):
-        self._delete_graphical_objects()
-        self.draw_settings_window()
+        if not self._hidden:
+            self._delete_graphical_objects()
+            self.draw_settings_window()
 
     def _delete_graphical_objects(self):
         for i in self._drawn_ids:
@@ -150,3 +152,4 @@ class PropertySettings:
 
     def destroy(self):
         self._delete_graphical_objects()
+        self._hidden = True

@@ -11,6 +11,7 @@ from game.gamemap import GameMap
 from game.json_import.map_schema import MapSchema
 from game.utils.size import Size
 from gui.block_views.block_view_factory import registered_block_views
+from gui.game_gui import GameGUI
 from gui.utils import WINDOW_WIDTH, WINDOW_HEIGHT
 from gui.views.map_view import MapView
 from gui.views.property_settings import PropertySettings
@@ -38,8 +39,8 @@ class EditorGUI:
 
         # Load a test data for debugging
         with open(
-                os.path.join(pathlib.Path(__file__).parent.parent, "test/data",
-                             "test_spike.json")) as fp:
+                os.path.join(pathlib.Path(__file__).parent.parent, "example_maps",
+                             "simple.json")) as fp:
             json_data = json.load(fp)
         schema = MapSchema()
         map_model = schema.load(json_data)
@@ -144,10 +145,8 @@ class EditorGUI:
         menu_bar.add_cascade(label="Help", state="disabled")
 
         game_menu = tkinter.Menu(menu_bar, tearoff=0)
-        game_menu.add_command(label="Start", state="disabled")
+        game_menu.add_command(label="Start", command=self._start_game)
         menu_bar.add_cascade(label="Game", menu=game_menu)
-
-
 
         self._window.config(menu=menu_bar)
 
@@ -211,6 +210,20 @@ class EditorGUI:
         if self._property_settings:
             self._property_settings.destroy()
             self._property_settings = None
+
+    def _start_game(self):
+        # Hide settings property window
+        self._settings_canvas.pack_forget()
+        if self._resizer:
+            self._resizer.destroy()
+            self._resizer = None
+        if self._selection_controller:
+            self._selection_controller.destroy()
+            self._selection_controller = None
+
+        self._game_session = GameGUI(self._game_canvas, self._game_map)
+        self._game_session.register_game_events()
+        self._game_canvas.focus_set()
 
 
 def main():
