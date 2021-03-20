@@ -1,16 +1,16 @@
 import logging
 from typing import Dict, Any
 
-from marshmallow import Schema, fields, post_load, validate, pre_dump, post_dump
+from marshmallow import Schema, fields, post_load, validate, pre_dump
 from marshmallow_oneofschema import OneOfSchema
 
 from game.blocks.impl.empty_block import EmptyBlock
+from game.blocks.impl.melting_ice import MeltingIceBlock
 from game.blocks.impl.player import Player
 from game.blocks.impl.rock import RockBlock
 from game.blocks.walls.killer_wall import KillerWall
 from game.blocks.walls.wall import WallContainer
 from game.gamemap import GameMap
-from game.utils.direction import Direction
 from game.utils.position import Position
 from game.utils.size import Size
 
@@ -58,7 +58,7 @@ class RockSchema(Schema):
                         values=fields.Nested(AbstractWallSchema), required=False)
 
     @post_load
-    def make_map_size(self, data, **kwargs) -> RockBlock:
+    def post_load(self, data, **kwargs) -> RockBlock:
         if data.get("walls") is None:
             return RockBlock()
         return RockBlock(walls=WallContainer(**data["walls"]))
@@ -76,16 +76,45 @@ class RockSchema(Schema):
         return {"walls": result}
 
 
+class MeltingIceSchema(Schema):
+    life = fields.Integer()
+    walls = fields.Dict(keys=fields.String(validate=validate.OneOf(["down", "up", "right", "left"])),
+                        values=fields.Nested(AbstractWallSchema), required=False)
+
+    @post_load
+    def post_load(self, data, **kwargs) -> MeltingIceBlock:
+        if data.get("walls") is None:
+            return MeltingIceBlock(None, data["life"])
+        return MeltingIceBlock(life=data["life"], walls=WallContainer(**data["walls"]))
+
+    @pre_dump
+    def _pre_dump(self, ice_block: MeltingIceBlock, **kwargs):
+        walls_dict = ice_block.walls().walls()
+        result = {}
+        for direction, val in walls_dict.items():
+            if val is None:
+                continue
+            result[direction.value] = val
+        if not result:
+            return {}
+        return {"walls": result, "life": ice_block.life}
+
+
 class AbstractBlockSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
         "Anna": PlayerSchema,
         "Stone": RockSchema,
+        "MeltingIce": MeltingIceSchema,
     }
 
     def get_obj_type(self, obj):
+        # Order of isinstance is important: subclasses of more general classes
+        # should be at front.
         if isinstance(obj, Player):
             return "Anna"
+        elif isinstance(obj, MeltingIceBlock):
+            return "MeltingIce"
         elif isinstance(obj, RockBlock):
             return "Stone"
         else:

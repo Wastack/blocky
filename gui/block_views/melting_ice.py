@@ -39,7 +39,7 @@ class MeltingIceBlockView(BlockView):
         # Draw walls
         wall_container = self._block.walls()
         if wall_container:
-            for side, wall in wall_container.walls():
+            for side, wall in wall_container.walls().items():
                 if wall is None:
                     continue
                 self._wall_views.append(wall_factory.from_wall(
