@@ -18,6 +18,7 @@ class MeltingIceBlockView(BlockView):
         super().__init__(canvas, block_fill_color="purple")
         self._text_id = None
         self._wall_views: List[WallView] = []
+        self._set_png_image("ice.png")
 
     @staticmethod
     def from_block(canvas: tkinter.Canvas, block: MeltingIceBlock) -> Optional['BlockView']:
@@ -32,8 +33,11 @@ class MeltingIceBlockView(BlockView):
         if self._text_id is not None:
             self.destroy()
 
-        # Draw rectangle with Melting identifier
+        if self._block.life < 1:
+            self._set_png_image("")
+
         rect = super().draw(pos)
+
         if self._block.life < 1:
             # Already melted
             self._canvas.itemconfig(rect, fill="gray5")

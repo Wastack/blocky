@@ -57,6 +57,9 @@ class BlockView(ABC):
     def set_wall(self, side: Direction, wall_view: Optional[Wall]):
         pass
 
+    def _set_png_image(self, png_file_name: str):
+        self._png_file_name = png_file_name
+
     @staticmethod
     def block_capability() -> BlockCapability:
         return BlockCapability()
