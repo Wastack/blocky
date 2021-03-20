@@ -155,24 +155,37 @@ class EditorGUI:
         self._reset_canvas(GameMap(Size(1, 1)))
 
     def _open_map(self):
-        self._handle_not_saved_current_map()
+        if not self._handle_not_saved_current_map():
+            logging.info("Saving file failed. Abort.")
+            return
         filename = filedialog.askopenfilename()
+        if filename is None or filename == "":
+            logging.info("Open file: empty file name. Abort opening file.")
+            return
         with open(filename, "r") as f:
             json_data = json.load(f)
         schema = MapSchema()
         my_map = schema.load(json_data)
         self._reset_canvas(my_map)
 
-    def _handle_not_saved_current_map(self):
-        if self._game_map is not None and (self._game_map.size.width > 1 or self._game_map.size.height > 1):
-            # Warning/confirmation of lost data
-            popup_result = tkinter.messagebox.askyesnocancel(title="Blocky", message="Current map is not saved. Wanna save it?")
+    def _handle_not_saved_current_map(self) -> bool:
+        """:returns false if dialog is cancelled. True otherwise"""
+        if self._game_map is None or \
+                (self._game_map.size.width <= 1 and
+                 self._game_map.size.height <= 1):
+            return True  # Initial state. No save required
+
+        popup_result = tkinter.messagebox.askyesnocancel(title="Blocky", message="Current map is not saved. Wanna save it?")
+        if not popup_result:
             if popup_result is None:
-                return
-            if popup_result:
-                # User wants to save file first.
-                # TODO is it a save as?
-                self._save_map_as()
+                return False  # Cancel pressed
+            else:
+                return True  # No pressed
+
+        # User wants to save file first.
+        # TODO is it a save as?
+        self._save_map_as()
+        return True
 
     def _save_map(self):
         raise NotImplementedError()
@@ -188,6 +201,7 @@ class EditorGUI:
         json_string = schema.dumps(map_model)
         filename = filedialog.asksaveasfilename()
         if not filename:
+            logging.info("No files selected for saving")
             return  # User probably cancelled the dialog
         with open(filename, "w") as f:
             f.write(json_string)

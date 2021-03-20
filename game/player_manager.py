@@ -16,8 +16,8 @@ _dir_func_map = {
 
 
 class PlayerManager:
-    def __init__(self, map: GameMap):
-        self._map = map
+    def __init__(self, game_map: GameMap):
+        self._map = game_map
 
     def move_all_players(self, direction: Direction):
         player_info = [p for p in self._map.getPlayers() if p[0].is_alive()]
