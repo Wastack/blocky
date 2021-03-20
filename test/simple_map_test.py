@@ -118,3 +118,30 @@ def test_spike_movedown():
     p, pos = _find_player(map)
     assert pos == Position(0, 1)
     assert p.is_alive()
+
+def test_melting_ice():
+    # Given
+    map, manager = loadMap("test_melting_ice.json")
+    p, _ = _find_player(map)
+
+    # When-Then
+    manager.move_all_players(Direction.DOWN)
+    p, pos = _find_player(map)
+    assert pos == Position(0, 4)
+    assert p.is_alive()
+
+    # When-Then
+    manager.move_all_players(Direction.UP)
+    manager.move_all_players(Direction.DOWN)
+    p, pos = _find_player(map)
+    assert pos == Position(0, 4)
+    assert p.is_alive()
+
+    # When-Then
+    manager.move_all_players(Direction.UP)
+    manager.move_all_players(Direction.DOWN)
+    p, pos = _find_player(map)
+    # Ice is now broken
+    assert pos == Position(0, 5)
+    assert p.is_alive()
+
