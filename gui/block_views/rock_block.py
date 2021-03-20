@@ -18,6 +18,7 @@ class RockBlockView(BlockView):
         super().__init__(canvas)
         self._text_id = None
         self._wall_views: List[WallView] = []
+        self._png_file_name = "brick.png"
 
     @staticmethod
     def from_block(canvas: tkinter.Canvas, block) -> Optional['BlockView']:
@@ -34,7 +35,6 @@ class RockBlockView(BlockView):
 
         # Draw rectangle with rock identifier
         rect = super().draw(pos)
-        self._text_id = self._create_text(pos, text="R")
 
         # Draw walls
         wall_container = self._block.walls()

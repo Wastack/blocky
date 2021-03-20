@@ -22,6 +22,7 @@ from gui.views.palette import Palette
 
 FORMAT = "[%(levelname)5s - %(filename)s:%(lineno)s::%(funcName)s] %(message)s"
 logging.basicConfig(format=FORMAT, level=logging.DEBUG)
+logging.getLogger("PIL").setLevel(logging.WARNING)
 
 
 class EditorGUI:

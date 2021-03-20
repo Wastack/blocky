@@ -1,15 +1,18 @@
 import abc
+import os
 import tkinter
 from abc import ABC
 from tkinter.font import Font
-from typing import Any, Optional, List
+from typing import Any, Optional
+
+from PIL import Image, ImageTk
 
 from game.blocks.block import AbstractBlock
 from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block_capability import BlockCapability
-from gui.block_views.wall_views.wall_view import WallView
+from gui.imageFactory import ImageFactory
 from gui.utils import rect_from_pos, BLOCK_SIZE
 
 
@@ -17,8 +20,10 @@ class BlockView(ABC):
     def __init__(self, canvas: tkinter.Canvas, block_fill_color="wheat1"):
         self._canvas = canvas
         self._rect: Optional[int] = None
+        self._img: Optional[tkinter.Label] = None
         self._block_color = block_fill_color
         self._block = self._set_default_block()
+        self._png_file_name = ""
 
     def _create_block(self, pos: Position) -> Any:
         rect = rect_from_pos(pos)
@@ -32,13 +37,22 @@ class BlockView(ABC):
     def draw(self, pos: Position) -> Any:
         if self._rect is not None:
             self.destroy()
+
+        if self._png_file_name != "":
+            img_factory = ImageFactory()
+            photo = img_factory.get_image(self._png_file_name)
+            self._img = self._canvas.create_image(pos.x*BLOCK_SIZE + BLOCK_SIZE // 2, pos.y*BLOCK_SIZE + BLOCK_SIZE // 2, image=photo)
         self._rect = self._create_block(pos)
         self._canvas.tag_lower(self._rect)
         return self._rect
 
     def destroy(self):
-        self._canvas.delete(self._rect)
+        for canvas_obj in [self._rect, self._img]:
+            if canvas_obj is not None:
+                self._canvas.delete(canvas_obj)
+
         self._rect = None
+        self._img = None
 
     def set_wall(self, side: Direction, wall_view: Optional[Wall]):
         pass
