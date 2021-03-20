@@ -21,6 +21,8 @@ class MeltingIceBlock(RockBlock):
         """
 
         super().__init__(walls)
+        if life < 1:
+            raise ValueError("Life parameter of melting ice block should be at least 1 when creating")
         self._life = life
 
     @property

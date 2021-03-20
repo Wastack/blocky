@@ -29,8 +29,8 @@ class MapView:
         # TODO clear previous
         for x, col in enumerate(self._block_views):
             for y, cell in enumerate(col):
-                for b in cell:
-                    b.draw(Position(x, y))
+                if len(cell) > 0:
+                    cell[-1].draw(Position(x, y))
 
     def cell(self, p: Position) -> List[BlockView]:
         return self._block_views[p.x][p.y]

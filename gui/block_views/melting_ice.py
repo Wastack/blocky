@@ -34,6 +34,11 @@ class MeltingIceBlockView(BlockView):
 
         # Draw rectangle with Melting identifier
         rect = super().draw(pos)
+        if self._block.life < 1:
+            # Already melted
+            self._canvas.itemconfig(rect, fill="gray5")
+            return rect
+
         self._text_id = self._create_text(pos, text=f"{self._block.life}")
 
         # Draw walls

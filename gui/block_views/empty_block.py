@@ -9,7 +9,7 @@ from gui.block_views.block import BlockView
 
 class EmptyBlockView(BlockView):
     def __init__(self, canvas: tkinter.Canvas):
-        super().__init__(canvas)
+        super().__init__(canvas, block_fill_color="gray5")
 
     @staticmethod
     def from_block(canvas: tkinter.Canvas, block) -> Optional['BlockView']:
@@ -20,7 +20,6 @@ class EmptyBlockView(BlockView):
 
     def draw(self, pos: Position) -> Any:
         rect = super().draw(pos)
-        self._canvas.itemconfig(rect, fill="gray5")
         return rect
 
     @staticmethod

@@ -40,7 +40,7 @@ class EditorGUI:
         # Load a test data for debugging
         with open(
                 os.path.join(pathlib.Path(__file__).parent.parent, "example_maps",
-                             "simple.json")) as fp:
+                             "melting_ice.json")) as fp:
             json_data = json.load(fp)
         schema = MapSchema()
         map_model = schema.load(json_data)
