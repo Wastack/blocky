@@ -23,6 +23,10 @@ class MeltingIceBlock(RockBlock):
         super().__init__(walls)
         self._life = life
 
+    @property
+    def life(self) -> int:
+        return self._life
+
     def before_step(self, intruder: Moveable, i: MoveInfo) -> MoveVerdict:
         if self._life > 0:
             # Ice only melts if intruder comes from a distance

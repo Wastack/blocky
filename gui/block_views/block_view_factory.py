@@ -3,6 +3,7 @@ import logging
 from game.blocks.block import AbstractBlock
 from gui.block_views.block import BlockView
 from gui.block_views.empty_block import EmptyBlockView
+from gui.block_views.melting_ice import MeltingIceBlockView
 from gui.block_views.player import PlayerBlockView
 from gui.block_views.rock_block import RockBlockView
 
@@ -10,6 +11,7 @@ registered_block_views = [
     EmptyBlockView,
     RockBlockView,
     PlayerBlockView,
+    MeltingIceBlockView,
 ]
 
 

@@ -13,13 +13,14 @@ from gui.utils import rect_from_pos, BLOCK_SIZE
 
 
 class BlockView(ABC):
-    def __init__(self, canvas: tkinter.Canvas):
+    def __init__(self, canvas: tkinter.Canvas, block_fill_color="wheat1"):
         self._canvas = canvas
         self._rect: Optional[int] = None
+        self._block_color = block_fill_color
 
     def _create_block(self, pos: Position) -> Any:
         rect = rect_from_pos(pos)
-        return self._canvas.create_rectangle(*rect, fill="wheat1")
+        return self._canvas.create_rectangle(*rect, fill=self._block_color)
 
     def _create_text(self, pos: Position, text: str) -> int:
         times = Font(family="Times", size=str(BLOCK_SIZE // 2), weight="bold")
