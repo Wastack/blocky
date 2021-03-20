@@ -3,10 +3,8 @@ from typing import Optional, Any
 
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.player import Player
-from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block import BlockView
-from gui.block_views.wall_views.wall_view import WallView
 
 
 class PlayerBlockView(BlockView):
@@ -27,7 +25,9 @@ class PlayerBlockView(BlockView):
         if self._text_id is not None:
             self.destroy()
         super().draw(pos)
-        self._text_id = self._create_text(pos, text="P")
+
+        text = ":)" if self._block.is_alive() else "X("
+        self._text_id = self._create_text(pos, text=text)
 
     def destroy(self):
         super().destroy()
