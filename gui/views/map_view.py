@@ -99,5 +99,5 @@ class MapView:
         for x, row in enumerate(self._block_views):
             for y, cell in enumerate(row):
                 for block_view in cell:
-                    game_map.putBlock(Position(x, y), block_view.to_game_block())
+                    game_map.putBlock(Position(x, y), block_view.game_block)
         return game_map

@@ -49,8 +49,9 @@ class WallView(ABC):
                   direction: Direction) -> Optional['WallView']:
         return
 
+    @staticmethod
     @abstractmethod
-    def to_game_wall(self) -> Wall:
+    def to_game_wall() -> Optional[Wall]:
         pass
 
     @abstractmethod

@@ -5,6 +5,7 @@ from tkinter.font import Font
 from typing import Any, Optional, List
 
 from game.blocks.block import AbstractBlock
+from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block_capability import BlockCapability
@@ -17,6 +18,7 @@ class BlockView(ABC):
         self._canvas = canvas
         self._rect: Optional[int] = None
         self._block_color = block_fill_color
+        self._block = self._set_default_block()
 
     def _create_block(self, pos: Position) -> Any:
         rect = rect_from_pos(pos)
@@ -38,7 +40,7 @@ class BlockView(ABC):
         self._canvas.delete(self._rect)
         self._rect = None
 
-    def set_wall(self, side: Direction, wall_view: WallView):
+    def set_wall(self, side: Direction, wall_view: Optional[Wall]):
         pass
 
     @staticmethod
@@ -55,6 +57,10 @@ class BlockView(ABC):
     def from_block(canvas: tkinter.Canvas, block) -> Optional['BlockView']:
         return
 
+    @property
+    def game_block(self) -> AbstractBlock:
+        return self._block
+
     @abc.abstractmethod
-    def to_game_block(self) -> AbstractBlock:
-        pass
+    def _set_default_block(self) -> AbstractBlock:
+        raise NotImplementedError()

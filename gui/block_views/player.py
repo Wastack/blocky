@@ -18,7 +18,10 @@ class PlayerBlockView(BlockView):
     def from_block(canvas: tkinter.Canvas, block) -> Optional['BlockView']:
         if type(block) != Player:
             return None
-        return PlayerBlockView(canvas)
+
+        ret = PlayerBlockView(canvas)
+        ret._block = block
+        return ret
 
     def draw(self, pos: Position) -> Any:
         if self._text_id is not None:
@@ -36,6 +39,5 @@ class PlayerBlockView(BlockView):
     def repr() -> str:
         return "Player"
 
-    def to_game_block(self) -> AbstractBlock:
+    def _set_default_block(self) -> AbstractBlock:
         return Player()
-

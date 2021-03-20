@@ -26,5 +26,6 @@ class EmptyWallView(WallView):
     def repr() -> str:
         return "Empty"
 
-    def to_game_wall(self) -> Wall:
+    @staticmethod
+    def to_game_wall() -> Optional[Wall]:
         return None

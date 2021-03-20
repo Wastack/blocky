@@ -30,6 +30,9 @@ class WallContainer():
     def walls(self):
         return self._walls
 
+    def set_side(self, wall: Wall, side: Direction):
+        self._walls[side] =  wall
+
     def before_step(self, intruder: Moveable, i : MoveInfo) -> MoveVerdict:
         wall_side = Direction.opposite(i.direction)
         wall = self._walls.get(wall_side)

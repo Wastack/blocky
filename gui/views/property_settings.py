@@ -5,6 +5,7 @@ from tkinter.font import Font
 from typing import Optional, Type
 
 from game.utils.direction import Direction
+from gui.block_views.wall_views.empty_wall_view import EmptyWallView
 from gui.block_views.wall_views.wall_factory import registered_wall_views
 from gui.block_views.wall_views.wall_view import WallView
 from gui.controllers.block_selection_controller import BlockSelectionController
@@ -105,13 +106,14 @@ class PropertySettings:
             # because underlying rect won't capture the event.
             self._palette.register_right_mouse(self._trigger_palette, rect)
 
-    def _trigger_palette(self, wall_type: Type[WallView]):
+    def _trigger_palette(self, wall_view_type: Type[WallView]):
         """
         Responsible for executing placement of walls after choosing one from
         the palette.
         """
         for side, wall_sel in self._wall_selectors.items():
             if wall_sel.is_selected:
+                wall_type = wall_view_type.to_game_wall()
                 self._block_selection_controller.put_wall_to_selection(side, wall_type)
 
     def _toggle_select(self, wall_selector: _WallSelection, _mouse_event):

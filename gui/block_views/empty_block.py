@@ -27,5 +27,5 @@ class EmptyBlockView(BlockView):
     def repr() -> str:
         return "Empty block"
 
-    def to_game_block(self) -> AbstractBlock:
+    def _set_default_block(self) -> AbstractBlock:
         return EmptyBlock()

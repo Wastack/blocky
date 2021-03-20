@@ -2,11 +2,10 @@ import logging
 from tkinter import Canvas
 from typing import Type, Optional
 
+from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
 from gui.block_views.block import BLOCK_SIZE, BlockView
-from gui.block_views.wall_views.empty_wall_view import EmptyWallView
-from gui.block_views.wall_views.wall_view import WallView
 from gui.controllers.selection_controller import SelectionController
 from gui.utils import MouseRange
 from gui.views.map_view import MapView
@@ -93,12 +92,12 @@ class BlockSelectionController(SelectionController):
         for pos in self.selected_items:
             self._map.replace_at(pos, block_type(self._canvas))
 
-    def put_wall_to_selection(self, side: Direction, wall_type: Type[WallView]) -> None:
+    def put_wall_to_selection(self, side: Direction, wall: Optional[Wall]) -> None:
         logging.info("Put wall to selection event triggered.")
         if not self.has_selection():
             return
         for pos in self.selected_items:
             for block in self._map.cell(pos):
-                if wall_type in block.block_capability().possible_wall_types or wall_type == EmptyWallView:
-                    block.set_wall(side, wall_type(self._canvas, side))
+                if wall is None or type(wall) in block.block_capability().possible_wall_types:
+                    block.set_wall(side, wall)
         self._map.draw()

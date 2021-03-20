@@ -36,5 +36,6 @@ class SpikeView(WallView):
     def repr() -> str:
         return "Spike"
 
-    def to_game_wall(self) -> Wall:
+    @staticmethod
+    def to_game_wall() -> Optional[Wall]:
         return KillerWall()
