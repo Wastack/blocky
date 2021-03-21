@@ -44,8 +44,8 @@ class GameStack(AbstractBlock):
         """
         if self._data == []:
             return MoveVerdict.MOVE
-        return MoveVerdict.MOVE if all(map(lambda x: x.before_step(intruder, i) != MoveVerdict.NO_MOVE, self._data))\
-                                else MoveVerdict.NO_MOVE
+        top_verdict = self.top().before_step(intruder, i)
+        return top_verdict
 
     def after_step(self, intruder: Moveable, i: MoveInfo) -> None:
         map(lambda x: x.after_step(intruder, i), self._data)

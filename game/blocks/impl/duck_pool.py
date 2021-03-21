@@ -39,7 +39,7 @@ class DuckPoolBlock(RockBlock):
         if walls_verdict != MoveVerdict.NO_VERDICT:
             return walls_verdict
 
-        if self.free_space > 0:
+        if self.free_space > 0 or self._capacity == 0:
             # Accept block
             self._blocks_in_pool.append(intruder)
             return MoveVerdict.CAPTURED

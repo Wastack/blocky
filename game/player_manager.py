@@ -32,9 +32,16 @@ class PlayerManager:
             new_pos = _dir_func_map.get(direction)(prev_pos)
             cell_to_interact = self._map.block(new_pos)
             verdict = cell_to_interact.before_step(p, move_info)
+            logging.debug(f"Verdict of {new_pos} is {verdict}")
             if verdict == MoveVerdict.MOVE:
-                logging.info(f"Player steps from: {prev_pos} to {new_pos}")
+                #logging.debug(f"Player steps from: {prev_pos} to {new_pos}")
                 self._map.move(prev_pos, new_pos, p)
+            elif verdict == MoveVerdict.CAPTURED:
+                # Player is captured by something, remove from map
+                # Assume player is on top of the stack
+                if type(self._map.block(prev_pos).pop()) != Player:
+                    raise ValueError("Captured player not found when trying to remove it")
+                return
             prev_pos = new_pos
             cell_to_interact.after_step(p, move_info)
             move_info.momentum += 1
