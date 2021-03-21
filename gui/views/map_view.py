@@ -1,103 +1,51 @@
-from typing import List
-
+from game.blocks.block import AbstractBlock
 from game.gamemap import GameMap
 from game.utils.position import Position
 from game.utils.size import Size
 from gui.block_views import block_view_factory
-from gui.block_views.block import BlockView
-from gui.block_views.empty_block import EmptyBlockView
 
 
 class MapView:
     def __init__(self, game_map: GameMap, canvas):
         self._canvas = canvas
         self._block_views = []
-        for column in game_map._blocks[:]:
-            view_column = []
-            self._block_views.append(view_column)
-            for stack in column:
-                view_stack = []
-                view_column.append(view_stack)
-                blocks = stack.data()
-                if not blocks:
-                    view_stack.append(EmptyBlockView(canvas))
-                else:
-                    for block in stack.data():
-                        view_stack.append(block_view_factory.from_block(block, canvas))
+        self._game_map = game_map
 
     def draw(self):
-        # TODO clear previous
-        for x, col in enumerate(self._block_views):
-            for y, cell in enumerate(col):
-                if len(cell) > 0:
-                    cell[-1].draw(Position(x, y))
+        self.destroy()
 
-    def cell(self, p: Position) -> List[BlockView]:
-        return self._block_views[p.x][p.y]
+        for x in range(self._game_map.size.width):
+            for y in range(self._game_map.size.height):
+                top_of_cell = self._game_map.block(Position(x, y)).top()
+                bv = block_view_factory.from_block( top_of_cell, self._canvas)
+                self._block_views.append(bv)
+                bv.draw(Position(x, y))
+
+    def cell(self, p: Position) -> AbstractBlock:
+        return self._game_map.block(p).top()
 
     def _clear_at(self, pos: Position) -> None:
-        stack = self._block_views[pos.x][pos.y]
-        for e in stack:
-            e.destroy()
-        stack.clear()
+        self._game_map.clearBlock(pos)
 
     def destroy(self):
-        for x, col in enumerate(self._block_views):
-            for y, cell in enumerate(col):
-                for b in cell:
-                    b.destroy()
+        for bv in self._block_views:
+            bv.destroy()
+        self._block_views.clear()
 
-    def replace_at(self, pos: Position, block: BlockView):
+    def replace_at(self, pos: Position, block: AbstractBlock):
         self._clear_at(pos)
-        stack = self._block_views[pos.x][pos.y]
-        stack.append(block)
-        block.draw(pos)
+        self._game_map.putBlock(pos, block)
 
     @property
     def size(self) -> Size:
-        if not self._block_views:
-            return Size(0, 0)
-        return Size(width=len(self._block_views), height=len(self._block_views[0]))
+        return self._game_map.size
 
     def resize(self, size: Size) -> bool:
-        current = self.size
-        d_width, d_height = size.width - current.width, size.height - current.height
-
-        # Height
-        if d_height < 0:
-            for i, col in enumerate(self._block_views):
-                for cell in col[len(col) + d_height:]:
-                    for b in cell:
-                        b.destroy()
-                self._block_views[i] = col[:len(col) + d_height]
-        else:
-            for col in self._block_views:
-                for _ in range(d_height):
-                    col.append([EmptyBlockView(self._canvas)])
-
-        # Width
-        if d_width < 0:
-            for col in self._block_views[len(self._block_views) + d_width:]:
-                for cell in col:
-                    for b in cell:
-                        b.destroy()
-            self._block_views = self._block_views[:len(self._block_views) + d_width]
-        else:
-            for _ in range(d_width):
-                col = []
-                self._block_views.append(col)
-                for _ in range(size.height):
-                    col.append([EmptyBlockView(self._canvas)])
-
-        # Need a full redraw if elements were added.
-        if d_width > 0 or d_height > 0:
+        success = self._game_map.resize(size)
+        if success:
             self.draw()
-        return True
+        return success
 
-    def to_game_map(self) -> GameMap:
-        game_map = GameMap(self.size)
-        for x, row in enumerate(self._block_views):
-            for y, cell in enumerate(row):
-                for block_view in cell:
-                    game_map.putBlock(Position(x, y), block_view.game_block)
-        return game_map
+    @property
+    def game_map(self) -> GameMap:
+        return self._game_map

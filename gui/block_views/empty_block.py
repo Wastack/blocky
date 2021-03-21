@@ -15,7 +15,6 @@ class EmptyBlockView(BlockView):
     def from_block(canvas: tkinter.Canvas, block) -> Optional['BlockView']:
         if type(block) != EmptyBlock:
             return None
-        print(type(block))
         return EmptyBlockView(canvas)
 
     def draw(self, pos: Position) -> Any:

@@ -5,6 +5,7 @@ from typing import Type, Optional
 from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
+from gui.block_views import block_view_factory
 from gui.block_views.block import BLOCK_SIZE, BlockView
 from gui.controllers.selection_controller import SelectionController
 from gui.utils import MouseRange
@@ -90,14 +91,16 @@ class BlockSelectionController(SelectionController):
         if not self.has_selection():
             return
         for pos in self.selected_items:
-            self._map.replace_at(pos, block_type(self._canvas))
+            # There is always a default constructor
+            self._map.replace_at(pos, block_view_factory.to_block(block_type))
 
     def put_wall_to_selection(self, side: Direction, wall: Optional[Wall]) -> None:
         logging.info("Put wall to selection event triggered.")
         if not self.has_selection():
             return
         for pos in self.selected_items:
-            for block in self._map.cell(pos):
-                if wall is None or type(wall) in block.block_capability().possible_wall_types:
-                    block.set_wall(side, wall)
+            block = self._map.cell(pos)
+            wallContainer = block.walls()
+            if wallContainer is not None:
+                wallContainer.set_side(wall, side)
         self._map.draw()

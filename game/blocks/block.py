@@ -21,4 +21,3 @@ class AbstractBlock(ABC):
     @abstractmethod
     def after_step(self, intruder: Moveable, move_info: MoveInfo):
         return True
-

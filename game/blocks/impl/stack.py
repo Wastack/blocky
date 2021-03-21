@@ -35,6 +35,9 @@ class GameStack(AbstractBlock):
     def get_players(self) -> List[Player]:
         return [x for x in self._data if isinstance(x, Player)]
 
+    def clear(self):
+        self._data.clear()
+
     def before_step(self, intruder: Moveable, i: MoveInfo) -> MoveVerdict:
         """
         :return: Whether intruder can step on block

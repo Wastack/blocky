@@ -1,5 +1,5 @@
 import logging
-from typing import Iterable, Tuple, List, Dict
+from typing import Iterable, Tuple, List, Dict, Union
 
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.deadly import DeadlyRockBlock
@@ -21,7 +21,7 @@ class GameMap:
             for h in range(self._map_size.height):
                 column.append(GameStack())
 
-    def block(self, pos: Position) -> AbstractBlock:
+    def block(self, pos: Position) -> Union[GameStack, DeadlyRockBlock]:
         if pos.x >= self._map_size.width or pos.x < 0 or \
                 pos.y >= self._map_size.height or pos.y < 0:
             return DeadlyRockBlock()
@@ -53,6 +53,34 @@ class GameMap:
             raise GameError('Block should be a stack object. PutBlock target might be out of bounds.')
         self.putBlock(pos_to, cell.pop())
 
+    def clearBlock(self, pos: Position):
+        self._block_as_stack(pos).clear()
+
     @property
     def size(self) -> Size:
         return self._map_size
+
+    def resize(self, size: Size) -> bool:
+        current = self._map_size
+        d_width, d_height = size.width - current.width, size.height - current.height
+
+        # Height
+        if d_height < 0:
+            for i, col in enumerate(self._blocks):
+                self._blocks[i] =  col[:len(col) + d_height]
+        else:
+            for col in self._blocks:
+                for _ in range(d_height):
+                    col.append([GameStack()])
+
+        # Width
+        if d_width < 0:
+            self._blocks = self._blocks[:len(self._blocks) + d_width]
+        else:
+            for _ in range(d_width):
+                col = []
+                self._blocks.append(col)
+                for _ in range(size.height):
+                    col.append(GameStack())
+
+        return True

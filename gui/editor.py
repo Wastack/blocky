@@ -1,3 +1,4 @@
+import copy
 import json
 import logging
 import os
@@ -81,8 +82,7 @@ class EditorGUI:
 
         # Selection Controller
         sc = BlockSelectionController(self._game_canvas, self._game_map)
-        sc.register_canvas_events(click=True, shift=True,
-                                                          control=True)
+        sc.register_canvas_events(click=True, shift=True, control=True)
         if self._selection_controller:
             self._selection_controller.destroy()
         self._selection_controller = sc
@@ -96,7 +96,7 @@ class EditorGUI:
         self._resizer = r
 
         # Palette Controller
-        pc = Palette(self._game_canvas, registered_block_views)
+        pc = Palette(self._game_canvas, registered_block_views.keys())
         pc.register_right_mouse(self._selection_controller.put_block_to_selection)
         if self._palette_controller:
             self._palette_controller.destroy()
@@ -197,7 +197,7 @@ class EditorGUI:
             logging.error(err_msg)
             raise RuntimeError(err_msg)
         schema = MapSchema()
-        map_model = self._game_map.to_game_map()
+        map_model = self._game_map.game_map
         logging.debug(map_model)
         json_string = schema.dumps(map_model)
         filename = filedialog.asksaveasfilename()
@@ -236,9 +236,14 @@ class EditorGUI:
             self._selection_controller.destroy()
             self._selection_controller = None
 
-        self._game_session = GameGUI(self._game_canvas, self._game_map)
-        self._game_session.register_game_events()
         self._game_canvas.focus_set()
+        self._game_session = GameGUI(self._game_canvas, copy.deepcopy(self._game_map.game_map))
+        self._game_session.register_game_events(callback=self._game_over)
+        self._game_session.draw()
+        self._game_map.destroy()
+
+    def _game_over(self):
+        self._game_map.draw()
 
 
 def main():
