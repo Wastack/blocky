@@ -71,7 +71,7 @@ class GameMap:
         else:
             for col in self._blocks:
                 for _ in range(d_height):
-                    col.append([GameStack()])
+                    col.append(GameStack())
 
         # Width
         if d_width < 0:
@@ -83,4 +83,5 @@ class GameMap:
                 for _ in range(size.height):
                     col.append(GameStack())
 
+        self._map_size = size
         return True
