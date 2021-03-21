@@ -1,11 +1,8 @@
 import abc
-import os
 import tkinter
 from abc import ABC
 from tkinter.font import Font
 from typing import Any, Optional
-
-from PIL import Image, ImageTk
 
 from game.blocks.block import AbstractBlock
 from game.blocks.walls.wall import Wall
@@ -23,7 +20,9 @@ class BlockView(ABC):
         self._img: Optional[tkinter.Label] = None
         self._block_color = block_fill_color
         self._block = self._set_default_block()
+
         self._png_file_name = ""
+        self._image_facing = Direction.RIGHT
 
     def _create_block(self, pos: Position) -> Any:
         rect = rect_from_pos(pos)
@@ -40,8 +39,8 @@ class BlockView(ABC):
 
         if self._png_file_name != "":
             img_factory = ImageFactory()
-            photo = img_factory.get_image(self._png_file_name)
-            self._img = self._canvas.create_image(pos.x*BLOCK_SIZE + BLOCK_SIZE // 2, pos.y*BLOCK_SIZE + BLOCK_SIZE // 2, image=photo)
+            self.photo = img_factory.get_image(self._png_file_name, rotate=self._image_facing)
+            self._img = self._canvas.create_image(pos.x*BLOCK_SIZE + BLOCK_SIZE // 2, pos.y*BLOCK_SIZE + BLOCK_SIZE // 2, image=self.photo)
         self._rect = self._create_block(pos)
         self._canvas.tag_lower(self._rect)
         return self._rect
@@ -59,6 +58,9 @@ class BlockView(ABC):
 
     def _set_png_image(self, png_file_name: str):
         self._png_file_name = png_file_name
+
+    def _set_image_facing(self, direction: Direction):
+        self._image_facing = direction
 
     @staticmethod
     def block_capability() -> BlockCapability:

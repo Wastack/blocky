@@ -25,10 +25,9 @@ class PlayerBlockView(BlockView):
     def draw(self, pos: Position) -> Any:
         if self._text_id is not None:
             self.destroy()
+        self._set_image_facing(self._block.facing)
         super().draw(pos)
 
-        #text = ":)" if self._block.is_alive() else "X("
-        #self._text_id = self._create_text(pos, text=text)
 
     def destroy(self):
         super().destroy()

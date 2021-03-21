@@ -39,3 +39,5 @@ class PlayerManager:
             cell_to_interact.after_step(p, move_info)
             move_info.momentum += 1
 
+        if move_info.momentum > 0:
+            p.set_facing(direction)
