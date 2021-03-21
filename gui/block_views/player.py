@@ -9,8 +9,9 @@ from gui.block_views.block import BlockView
 
 class PlayerBlockView(BlockView):
     def __init__(self, canvas: tkinter.Canvas):
-        super().__init__(canvas)
+        super().__init__(canvas, block_fill_color="gray5")
         self._text_id = None
+        self._set_png_image("duck.png")
 
     @staticmethod
     def from_block(canvas: tkinter.Canvas, block) -> Optional['BlockView']:
@@ -26,8 +27,8 @@ class PlayerBlockView(BlockView):
             self.destroy()
         super().draw(pos)
 
-        text = ":)" if self._block.is_alive() else "X("
-        self._text_id = self._create_text(pos, text=text)
+        #text = ":)" if self._block.is_alive() else "X("
+        #self._text_id = self._create_text(pos, text=text)
 
     def destroy(self):
         super().destroy()
