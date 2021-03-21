@@ -35,6 +35,7 @@ class EditorGUI:
         self._selection_controller = None
         self._settings_canvas = None
         self._property_settings = None
+        self._game_session = None
 
     def show(self):
         self._create_window()
@@ -96,7 +97,7 @@ class EditorGUI:
         self._resizer = r
 
         # Palette Controller
-        pc = Palette(self._game_canvas, registered_block_views.keys())
+        pc = Palette(self._game_canvas, list(registered_block_views.keys()))
         pc.register_right_mouse(self._selection_controller.put_block_to_selection)
         if self._palette_controller:
             self._palette_controller.destroy()

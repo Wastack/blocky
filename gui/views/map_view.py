@@ -1,3 +1,5 @@
+import logging
+
 from game.blocks.block import AbstractBlock
 from game.gamemap import GameMap
 from game.utils.position import Position
@@ -43,6 +45,7 @@ class MapView:
     def resize(self, size: Size) -> bool:
         success = self._game_map.resize(size)
         if success:
+            logging.debug("Resized")
             self.draw()
         return success
 

@@ -4,6 +4,7 @@ from typing import Dict, Any
 from marshmallow import Schema, fields, post_load, validate, pre_dump
 from marshmallow_oneofschema import OneOfSchema
 
+from game.blocks.impl.duck_pool import DuckPoolBlock
 from game.blocks.impl.empty_block import EmptyBlock
 from game.blocks.impl.melting_ice import MeltingIceBlock
 from game.blocks.impl.player import Player
@@ -166,3 +167,25 @@ class MapSchema(Schema):
         }
         return result
 
+class DuckPoolSchema(Schema):
+    capacity = fields.Integer()
+    walls = fields.Dict(keys=fields.String(validate=validate.OneOf(["down", "up", "right", "left"])),
+                        values=fields.Nested(AbstractWallSchema), required=False)
+
+    @post_load
+    def post_load(self, data, **kwargs) -> DuckPoolBlock:
+        if data.get("walls") is None:
+            return DuckPoolBlock(None, data["capacity"])
+        return DuckPoolBlock(capacity=data["capacity"], walls=WallContainer(**data["walls"]))
+
+    @pre_dump
+    def _pre_dump(self, duck_pool_block: DuckPoolBlock, **kwargs):
+        walls_dict = duck_pool_block.walls().walls()
+        result = {}
+        for direction, val in walls_dict.items():
+            if val is None:
+                continue
+            result[direction.value] = val
+        if not result:
+            return {}
+        return {"walls": result, "capacity": duck_pool_block.capacity}

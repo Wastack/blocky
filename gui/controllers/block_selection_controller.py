@@ -93,6 +93,7 @@ class BlockSelectionController(SelectionController):
         for pos in self.selected_items:
             # There is always a default constructor
             self._map.replace_at(pos, block_view_factory.to_block(block_type))
+        self._map.draw()
 
     def put_wall_to_selection(self, side: Direction, wall: Optional[Wall]) -> None:
         logging.info("Put wall to selection event triggered.")

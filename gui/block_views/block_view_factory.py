@@ -2,11 +2,13 @@ import logging
 from typing import Type
 
 from game.blocks.block import AbstractBlock
+from game.blocks.impl.duck_pool import DuckPoolBlock
 from game.blocks.impl.empty_block import EmptyBlock
 from game.blocks.impl.melting_ice import MeltingIceBlock
 from game.blocks.impl.player import Player
 from game.blocks.impl.rock import RockBlock
 from gui.block_views.block import BlockView
+from gui.block_views.duck_pool import DuckPoolBlockView
 from gui.block_views.empty_block import EmptyBlockView
 from gui.block_views.melting_ice import MeltingIceBlockView
 from gui.block_views.player import PlayerBlockView
@@ -17,6 +19,7 @@ registered_block_views = {
     RockBlockView: RockBlock,
     PlayerBlockView: Player,
     MeltingIceBlockView: MeltingIceBlock,
+    DuckPoolBlockView: DuckPoolBlock,
 }
 
 
