@@ -84,9 +84,11 @@ class MeltingIceSchema(Schema):
 
     @post_load
     def post_load(self, data, **kwargs) -> MeltingIceBlock:
+        life = data.get("life")
+        life = life if life is not None else 1
         if data.get("walls") is None:
-            return MeltingIceBlock(None, data["life"])
-        return MeltingIceBlock(life=data["life"], walls=WallContainer(**data["walls"]))
+            return MeltingIceBlock(None, life)
+        return MeltingIceBlock(life=life, walls=WallContainer(**data["walls"]))
 
     @pre_dump
     def _pre_dump(self, ice_block: MeltingIceBlock, **kwargs):
@@ -108,9 +110,11 @@ class DuckPoolSchema(Schema):
 
     @post_load
     def post_load(self, data, **kwargs) -> DuckPoolBlock:
+        capacity = data.get("capacity")
+        capacity = -1 if capacity is None else capacity
         if data.get("walls") is None:
-            return DuckPoolBlock(None, data["capacity"])
-        return DuckPoolBlock(capacity=data["capacity"], walls=WallContainer(**data["walls"]))
+            return DuckPoolBlock(None, capacity)
+        return DuckPoolBlock(capacity=capacity, walls=WallContainer(**data["walls"]))
 
     @pre_dump
     def _pre_dump(self, duck_pool_block: DuckPoolBlock, **kwargs):
