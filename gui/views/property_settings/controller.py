@@ -34,10 +34,6 @@ class PropertySettings:
         self._block_selection_controller = block_sel_controller
         self._drawn_ids = []
         self._drawn_objects = []
-
-        # Register to resize event
-        self._canvas.bind("<Configure>", self._on_resize)
-
         self._leftmost_pos = 0
         self._rightmost_pos = 0
 
@@ -138,11 +134,6 @@ class PropertySettings:
         else:
             # undo selection indicator graphic
             self._canvas.itemconfigure(wall_selector.gid, width=1)
-
-    def _on_resize(self, _event):
-        if not self._hidden:
-            self._delete_graphical_objects()
-            self.draw()
 
     def _delete_graphical_objects(self):
         for i in self._drawn_ids:
