@@ -111,7 +111,7 @@ class EditorGUI:
         # Property Settings (Controller)
         ps = PropertySettings(self._settings_canvas,
                                              self._selection_controller)
-        ps.draw_settings_window()
+        ps.draw()
         if self._property_settings:
             self._property_settings.destroy()
         self._property_settings = ps

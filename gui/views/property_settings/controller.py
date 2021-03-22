@@ -5,12 +5,12 @@ from tkinter.font import Font
 from typing import Optional, Type
 
 from game.utils.direction import Direction
-from gui.block_views.wall_views.empty_wall_view import EmptyWallView
 from gui.block_views.wall_views.wall_factory import registered_wall_views
 from gui.block_views.wall_views.wall_view import WallView
 from gui.controllers.block_selection_controller import BlockSelectionController
 from gui.utils import WINDOW_WIDTH, BLOCK_SIZE
 from gui.views.palette import Palette
+from gui.views.property_settings.counter_button import CounterButton
 
 PROPERTY_SETTINGS_WINDOW_WIDTH = WINDOW_WIDTH // 5
 PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN = 5
@@ -18,6 +18,7 @@ PROPERTY_SETTINGS_BOUNDING_BOX_MARGIN = 5
 WALL_SETTINGS_VERTICAL_OFFSET = 35
 WALL_SETTINGS_MARGIN = 10
 WALL_SETTINGS_HEIGHT = 160
+CAPACITY_BOX_HEIGHT = 80
 
 
 @dataclass
@@ -32,6 +33,7 @@ class PropertySettings:
         self._canvas = canvas
         self._block_selection_controller = block_sel_controller
         self._drawn_ids = []
+        self._drawn_objects = []
 
         # Register to resize event
         self._canvas.bind("<Configure>", self._on_resize)
@@ -49,7 +51,7 @@ class PropertySettings:
         self._palette = Palette(self._canvas, registered_wall_views)
         self._hidden = False
 
-    def draw_settings_window(self):
+    def draw(self):
         # canvas update is needed to query canvas size
         self._canvas.update()
 
@@ -106,6 +108,18 @@ class PropertySettings:
             # because underlying rect won't capture the event.
             self._palette.register_right_mouse(self._trigger_palette, rect)
 
+        # Draw capacity selector if applicable
+        y_offset = WALL_SETTINGS_VERTICAL_OFFSET + WALL_SETTINGS_HEIGHT + 20
+        self._drawn_ids.append(
+            self._canvas.create_text(self._leftmost_pos + 60, y_offset, text="Capacity:",
+                                     fill="DeepSkyBlue1", font=times)
+        )
+        y_offset = y_offset + 20
+        box = self._draw_bounding_box(y=y_offset, height=CAPACITY_BOX_HEIGHT)
+        capacity_button = CounterButton(self._canvas, pos=(self._leftmost_pos + 10, y_offset + 5), size=CAPACITY_BOX_HEIGHT - 2*5)
+        capacity_button.draw()
+        self._drawn_objects.append(capacity_button)
+
     def _trigger_palette(self, wall_view_type: Type[WallView]):
         """
         Responsible for executing placement of walls after choosing one from
@@ -128,16 +142,21 @@ class PropertySettings:
     def _on_resize(self, _event):
         if not self._hidden:
             self._delete_graphical_objects()
-            self.draw_settings_window()
+            self.draw()
 
     def _delete_graphical_objects(self):
         for i in self._drawn_ids:
             self._canvas.delete(i)
-        self._drawn_ids = []
+        self._drawn_ids.clear()
+
         for wall_selector in self._wall_selectors.values():
             if wall_selector.gid is not None:
                 self._canvas.delete(wall_selector.gid)
                 wall_selector.gid = None
+
+        for obj in self._drawn_objects:
+            obj.destroy()
+        self._drawn_objects.clear()
 
     def _draw_bounding_box(self, y: int, height: int) -> int:
         """
