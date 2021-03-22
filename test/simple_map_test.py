@@ -1,8 +1,9 @@
 import logging
-from typing import Tuple
+from typing import Tuple, Optional
 
 import pytest
 
+from game.blocks.impl.duck_pool import DuckPoolBlock
 from game.blocks.impl.player import Player
 from game.gamemap import GameMap
 from game.utils.direction import Direction
@@ -12,8 +13,12 @@ from test.utils import loadMap
 logging.basicConfig(level=logging.DEBUG)
 
 
-def _find_player(map: GameMap) -> Tuple[Player, Position]:
-    return map.getPlayers()[0]
+def _find_player(map: GameMap) -> Optional[Tuple[Player, Position]]:
+    players = map.getPlayers()
+    if players is None or len(players) < 1:
+        return None
+    return players[0]
+
 
 def test_empty_moveright():
     # Given
@@ -119,6 +124,7 @@ def test_spike_movedown():
     assert pos == Position(0, 1)
     assert p.is_alive()
 
+
 def test_melting_ice():
     # Given
     map, manager = loadMap("test_melting_ice.json")
@@ -145,3 +151,17 @@ def test_melting_ice():
     assert pos == Position(0, 5)
     assert p.is_alive()
 
+
+def test_duckpool():
+    # Given
+    map, manager = loadMap("test_duckpool.json")
+
+    # When
+    manager.move_all_players(Direction.RIGHT)
+
+    # Then
+    assert _find_player(map) is None
+    pool: DuckPoolBlock = map.block(Position(3, 0)).top()
+    assert pool.capacity == -1
+    assert pool.free_space == -1
+    assert type(pool._blocks_in_pool[0]) == Player

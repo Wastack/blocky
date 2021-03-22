@@ -39,7 +39,7 @@ class DuckPoolBlockView(BlockView):
 
         rect = super().draw(pos)
 
-        if self._block.capacity > 0:
+        if self._block.capacity > -1:
             self._text_id = self._create_text(pos, text=f"{self._block.capacity}")
 
         # Draw walls

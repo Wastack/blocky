@@ -101,22 +101,49 @@ class MeltingIceSchema(Schema):
         return {"walls": result, "life": ice_block.life}
 
 
+class DuckPoolSchema(Schema):
+    capacity = fields.Integer()
+    walls = fields.Dict(keys=fields.String(validate=validate.OneOf(["down", "up", "right", "left"])),
+                        values=fields.Nested(AbstractWallSchema), required=False)
+
+    @post_load
+    def post_load(self, data, **kwargs) -> DuckPoolBlock:
+        if data.get("walls") is None:
+            return DuckPoolBlock(None, data["capacity"])
+        return DuckPoolBlock(capacity=data["capacity"], walls=WallContainer(**data["walls"]))
+
+    @pre_dump
+    def _pre_dump(self, duck_pool_block: DuckPoolBlock, **kwargs):
+        walls_dict = duck_pool_block.walls().walls()
+        result = {}
+        for direction, val in walls_dict.items():
+            if val is None:
+                continue
+            result[direction.value] = val
+        if not result:
+            return {}
+        return {"walls": result, "capacity": duck_pool_block.capacity}
+
+
 class AbstractBlockSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
         "Anna": PlayerSchema,
         "Stone": RockSchema,
         "MeltingIce": MeltingIceSchema,
+        "DuckPool": DuckPoolSchema,
     }
 
     def get_obj_type(self, obj):
         # Order of isinstance is important: subclasses of more general classes
         # should be at front.
-        if isinstance(obj, Player):
+        if type(obj) == Player:
             return "Anna"
-        elif isinstance(obj, MeltingIceBlock):
+        elif type(obj) == MeltingIceBlock:
             return "MeltingIce"
-        elif isinstance(obj, RockBlock):
+        elif type(obj) == DuckPoolBlock:
+            return "DuckPool"
+        elif type(obj) == RockBlock:
             return "Stone"
         else:
             raise Exception("Unknown object type: {}".format(obj.__class__.__name__))
@@ -166,26 +193,3 @@ class MapSchema(Schema):
             "cells": cells_dicts,
         }
         return result
-
-class DuckPoolSchema(Schema):
-    capacity = fields.Integer()
-    walls = fields.Dict(keys=fields.String(validate=validate.OneOf(["down", "up", "right", "left"])),
-                        values=fields.Nested(AbstractWallSchema), required=False)
-
-    @post_load
-    def post_load(self, data, **kwargs) -> DuckPoolBlock:
-        if data.get("walls") is None:
-            return DuckPoolBlock(None, data["capacity"])
-        return DuckPoolBlock(capacity=data["capacity"], walls=WallContainer(**data["walls"]))
-
-    @pre_dump
-    def _pre_dump(self, duck_pool_block: DuckPoolBlock, **kwargs):
-        walls_dict = duck_pool_block.walls().walls()
-        result = {}
-        for direction, val in walls_dict.items():
-            if val is None:
-                continue
-            result[direction.value] = val
-        if not result:
-            return {}
-        return {"walls": result, "capacity": duck_pool_block.capacity}

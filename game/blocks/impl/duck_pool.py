@@ -14,20 +14,22 @@ class DuckPoolBlock(RockBlock):
     If pool is full, it behaves as a rock
     """
 
-    def __init__(self, walls: Optional[WallContainer] = None, capacity: int = 0):
+    def __init__(self, walls: Optional[WallContainer] = None, capacity: int = -1):
         """
         :param walls: Walls on the pool.
-        :param capacity: Defines how many blocks the pool can accept. 0 means infinite capacity
+        :param capacity: Defines how many blocks the pool can accept. -1 means infinite capacity
         """
 
         super().__init__(walls)
-        if capacity < 0:
-            raise ValueError("Capacity cannot be negative")
+        if capacity < -1:
+            raise ValueError("Invalid capacity")
         self._capacity = capacity
         self._blocks_in_pool = []  # This might needed later for pretty rendering. (e.g. ducks floating in the pool)
 
     @property
     def free_space(self) -> int:
+        if self._capacity == -1:
+            return -1
         return self._capacity - len(self._blocks_in_pool)
 
     @property
@@ -39,7 +41,7 @@ class DuckPoolBlock(RockBlock):
         if walls_verdict != MoveVerdict.NO_VERDICT:
             return walls_verdict
 
-        if self.free_space > 0 or self._capacity == 0:
+        if self.free_space > 0 or self._capacity == -1:
             # Accept block
             self._blocks_in_pool.append(intruder)
             return MoveVerdict.CAPTURED
