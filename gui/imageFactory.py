@@ -27,7 +27,7 @@ class ImageFactory(metaclass=SingletonMeta):
         if load is None:
             logging.info(f"Loading image: {image_file_name}")
             load = Image.open(
-                os.path.join("resources", image_file_name)).resize(
+                os.path.join("gui", "resources", image_file_name)).resize(
                 (BLOCK_SIZE, BLOCK_SIZE))
             self._images[image_file_name] = load
         load = rotate_image_to_direction(load, rotate)
