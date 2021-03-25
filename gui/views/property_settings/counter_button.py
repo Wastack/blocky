@@ -79,3 +79,9 @@ class CounterButton:
     def _released(self, event):
         self._canvas.itemconfig(self._bg_rect,
                                 activefill=CounterButton.__COLOR_MOUSEOVER)
+
+    def set_counter(self, value: int, notify_callback: bool):
+        self._counter = value
+        if notify_callback and self._callback is not None:
+            self._callback(self._counter)
+        self.draw()

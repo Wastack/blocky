@@ -1,6 +1,6 @@
 import logging
 from tkinter import Canvas
-from typing import Type, Optional
+from typing import Type, Optional, Callable, Any
 
 from game.blocks.impl.duck_pool import DuckPoolBlock
 from game.blocks.impl.melting_ice import MeltingIceBlock
@@ -28,6 +28,14 @@ class BlockSelectionController(SelectionController):
         self._exceptions = {}
 
         self._head: Optional[Position] = None
+        self._changed_callbacks = []
+
+    def subscribe_changed(self, callback: Callable[[],Any]):
+        self._changed_callbacks.append(callback)
+
+    def on_changed(self):
+        for c in self._changed_callbacks:
+            c()
 
     def set_exception(self, mouse_range: MouseRange, key: str, enable_shift_select=False):
         self._exceptions[key] = (mouse_range, enable_shift_select)
@@ -81,6 +89,7 @@ class BlockSelectionController(SelectionController):
                     continue
                 self._select_game_pos(p)
         self._head = pos
+        self.on_changed()
 
     def _control_clicked(self, mouse_event):
         if self._in_exception(mouse_event.x, mouse_event.y):
@@ -88,6 +97,7 @@ class BlockSelectionController(SelectionController):
         pos = BlockSelectionController._mouse_pos_to_game_pos(mouse_event.x, mouse_event.y)
         self._select_game_pos(pos)
         self._head = pos
+        self.on_changed()
 
     def _clicked(self, mouse_event):
         if self._in_exception(mouse_event.x, mouse_event.y):

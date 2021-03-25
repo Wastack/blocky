@@ -45,7 +45,14 @@ class PropertySettings:
         }
 
         self._palette = Palette(self._canvas, registered_wall_views)
-        self._hidden = False
+        self._capacity_button: Optional[CounterButton] = None
+
+        self._block_selection_controller.subscribe_changed(self._selection_controller_changed)
+
+    def _selection_controller_changed(self):
+        if self._capacity_button is None:
+            return
+        self._capacity_button.set_counter(0, notify_callback=False)
 
     def draw(self):
         # canvas update is needed to query canvas size
@@ -112,13 +119,14 @@ class PropertySettings:
         )
         y_offset = y_offset + 20
         box = self._draw_bounding_box(y=y_offset, height=CAPACITY_BOX_HEIGHT)
-        capacity_button = CounterButton(self._canvas, pos=(self._leftmost_pos + 10, y_offset + 5), size=CAPACITY_BOX_HEIGHT - 2*5)
+        self._capacity_button = CounterButton(self._canvas, pos=(self._leftmost_pos + 10, y_offset + 5), size=CAPACITY_BOX_HEIGHT - 2*5)
+
 
         # Inject capacity to selection controller with a callback
-        capacity_button.set_change_callback(self._block_selection_controller.change_capacity_on_selection)
+        self._capacity_button.set_change_callback(self._block_selection_controller.change_capacity_on_selection)
 
-        capacity_button.draw()
-        self._drawn_objects.append(capacity_button)
+        self._capacity_button.draw()
+        self._drawn_objects.append(self._capacity_button)
 
     def _trigger_palette(self, wall_view_type: Type[WallView]):
         """
@@ -168,4 +176,3 @@ class PropertySettings:
 
     def destroy(self):
         self._delete_graphical_objects()
-        self._hidden = True
