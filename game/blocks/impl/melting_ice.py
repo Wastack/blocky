@@ -29,6 +29,11 @@ class MeltingIceBlock(RockBlock):
     def life(self) -> int:
         return self._life
 
+    def set_life(self, life: int):
+        if life < 1:
+            raise ValueError("Life parameter of ice block should be at least 1")
+        self._life = life
+
     def before_step(self, intruder: Moveable, i: MoveInfo) -> MoveVerdict:
         if self._life > 0:
             # Ice only melts if intruder comes from a distance

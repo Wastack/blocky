@@ -1,5 +1,6 @@
 import tkinter
 from tkinter.font import Font
+from typing import Callable
 
 from gui.utils import BLOCK_SIZE
 
@@ -17,10 +18,14 @@ class CounterButton:
         self._gids = []
         self._counter = initial_value
         self._bg_rect = None
+        self._callback = None
 
     @property
     def value(self):
         return self._counter
+
+    def set_change_callback(self, callback: Callable[[int],None]):
+        self._callback = callback
 
     def draw(self):
         self.destroy()
@@ -56,12 +61,16 @@ class CounterButton:
     def _left_clicked(self, _event):
         self._clicked()
         self._counter += 1
+        if self._callback is not None:
+            self._callback(self._counter)
         self.draw()
 
     def _right_clicked(self, _event):
         self._clicked()
         if self._counter > -1:
             self._counter -= 1
+            if self._callback is not None:
+                self._callback(self._counter)
         self.draw()
 
     def _clicked(self):

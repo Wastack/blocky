@@ -36,6 +36,9 @@ class DuckPoolBlock(RockBlock):
     def capacity(self) -> int:
         return self._capacity
 
+    def set_capacity(self, capacity: int):
+        self._capacity = capacity
+
     def before_step(self, intruder: Moveable, i: MoveInfo) -> MoveVerdict:
         walls_verdict = self._walls.before_step(intruder, i)
         if walls_verdict != MoveVerdict.NO_VERDICT:

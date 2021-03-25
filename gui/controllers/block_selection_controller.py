@@ -2,6 +2,8 @@ import logging
 from tkinter import Canvas
 from typing import Type, Optional
 
+from game.blocks.impl.duck_pool import DuckPoolBlock
+from game.blocks.impl.melting_ice import MeltingIceBlock
 from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
@@ -10,6 +12,13 @@ from gui.block_views.block import BLOCK_SIZE, BlockView
 from gui.controllers.selection_controller import SelectionController
 from gui.utils import MouseRange
 from gui.views.map_view import MapView
+
+
+def _with_redraw(func):
+    def wrap(self: SelectionController, *args):
+        func(self, *args)
+        self._map.draw()
+    return wrap
 
 
 class BlockSelectionController(SelectionController):
@@ -85,7 +94,8 @@ class BlockSelectionController(SelectionController):
             return
         self.deselect_all()
         self._control_clicked(mouse_event)
-    
+
+    @_with_redraw
     def put_block_to_selection(self, block_type: Type[BlockView]) -> None:
         logging.info("Put block to selection event triggered.")
         if not self.has_selection():
@@ -93,8 +103,8 @@ class BlockSelectionController(SelectionController):
         for pos in self.selected_items:
             # There is always a default constructor
             self._map.replace_at(pos, block_view_factory.to_block(block_type))
-        self._map.draw()
 
+    @_with_redraw
     def put_wall_to_selection(self, side: Direction, wall: Optional[Wall]) -> None:
         logging.info("Put wall to selection event triggered.")
         if not self.has_selection():
@@ -104,4 +114,16 @@ class BlockSelectionController(SelectionController):
             wallContainer = block.walls()
             if wallContainer is not None:
                 wallContainer.set_side(wall, side)
-        self._map.draw()
+
+    @_with_redraw
+    def change_capacity_on_selection(self, capacity: int):
+        logging.debug("Change capacity on selected blocks")
+        if not self.has_selection():
+            logging.debug("No blocks selected to change capacity on")
+            return
+        for pos in self.selected_items:
+            block = self._map.cell(pos)
+            if isinstance(block, MeltingIceBlock) and capacity > 0:
+                block.set_life(capacity)
+            elif isinstance(block, DuckPoolBlock) and capacity >= -1:
+                block.set_capacity(capacity)

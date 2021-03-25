@@ -113,6 +113,10 @@ class PropertySettings:
         y_offset = y_offset + 20
         box = self._draw_bounding_box(y=y_offset, height=CAPACITY_BOX_HEIGHT)
         capacity_button = CounterButton(self._canvas, pos=(self._leftmost_pos + 10, y_offset + 5), size=CAPACITY_BOX_HEIGHT - 2*5)
+
+        # Inject capacity to selection controller with a callback
+        capacity_button.set_change_callback(self._block_selection_controller.change_capacity_on_selection)
+
         capacity_button.draw()
         self._drawn_objects.append(capacity_button)
 
