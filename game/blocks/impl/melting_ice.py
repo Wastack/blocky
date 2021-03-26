@@ -1,5 +1,6 @@
 from typing import Optional
 
+from game.blocks.block import AbstractBlock
 from game.blocks.impl.player import Player
 from game.blocks.impl.rock import RockBlock
 from game.blocks.walls.wall import WallContainer
@@ -34,7 +35,7 @@ class MeltingIceBlock(RockBlock):
             raise ValueError("Life parameter of ice block should be at least 1")
         self._life = life
 
-    def before_step(self, intruder: Moveable, i: MoveInfo) -> MoveVerdict:
+    def before_step(self, intruder: AbstractBlock, i: MoveInfo) -> MoveVerdict:
         if self._life > 0:
             # Ice only melts if intruder comes from a distance
             if i.momentum > 0 and isinstance(intruder, Player):

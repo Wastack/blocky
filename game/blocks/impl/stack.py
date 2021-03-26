@@ -1,11 +1,9 @@
-import logging
 from typing import List
 
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.empty_block import EmptyBlock
 from game.blocks.impl.player import Player
 from game.move_info import MoveInfo
-from game.moveables.moveable import Moveable
 from game.utils.move_verdict import MoveVerdict
 
 
@@ -38,7 +36,7 @@ class GameStack(AbstractBlock):
     def clear(self):
         self._data.clear()
 
-    def before_step(self, intruder: Moveable, i: MoveInfo) -> MoveVerdict:
+    def before_step(self, intruder: AbstractBlock, i: MoveInfo) -> MoveVerdict:
         """
         :return: Whether intruder can step on block
         """
@@ -47,5 +45,5 @@ class GameStack(AbstractBlock):
         top_verdict = self.top().before_step(intruder, i)
         return top_verdict
 
-    def after_step(self, intruder: Moveable, i: MoveInfo) -> None:
+    def after_step(self, intruder: AbstractBlock, i: MoveInfo) -> None:
         map(lambda x: x.after_step(intruder, i), self._data)

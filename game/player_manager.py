@@ -1,7 +1,7 @@
 import logging
-from dataclasses import dataclass
 from typing import List
 
+from game.blocks.block import AbstractBlock
 from game.blocks.impl.player import Player
 from game.gamemap import GameMap
 from game.move_info import MoveInfo
@@ -17,8 +17,8 @@ _dir_func_map = {
 }
 
 class _PlayerWithPosition:
-    def __init__(self, player: Player, pos: Position, game_map: GameMap):
-        self._player = player
+    def __init__(self, moveable: AbstractBlock, pos: Position, game_map: GameMap):
+        self._moveable = moveable
         self._position = pos
         self._map = game_map
 
@@ -39,7 +39,7 @@ class _PlayerWithPosition:
         while verdict == MoveVerdict.MOVE:
             new_pos = _dir_func_map.get(direction)(prev_pos)
             cell_to_interact = self._map.block(new_pos)
-            verdict = cell_to_interact.before_step(self._player, move_info)
+            verdict = cell_to_interact.before_step(self._moveable, move_info)
             #logging.debug(f"Verdict of {new_pos} is {verdict}")
 
             if verdict != MoveVerdict.NO_MOVE:
@@ -51,7 +51,7 @@ class _PlayerWithPosition:
                 self._definitely_done_moving = True
             elif verdict == MoveVerdict.MOVE:
                 logging.debug(f"Moving from {self._position} to {new_pos}")
-                self._map.move(prev_pos, new_pos, self._player)
+                self._map.move(prev_pos, new_pos, self._moveable)
                 self._position = new_pos
             elif verdict == MoveVerdict.CAPTURED:
                 # Player is captured by something, remove from map
@@ -60,10 +60,9 @@ class _PlayerWithPosition:
                     raise ValueError("Captured player not found when trying to remove it")
                 self._definitely_done_moving = True
             prev_pos = new_pos
-            cell_to_interact.after_step(self._player, move_info)
+            cell_to_interact.after_step(self._moveable, move_info)
             move_info.momentum += 1
 
-        self._player.set_facing(direction)
         return state_changed
 
 class PlayerManager:
@@ -80,7 +79,7 @@ class PlayerManager:
         for p, position in self._map.getPlayers():
             if not p.is_alive():
                 continue
-            players.append(_PlayerWithPosition(player=p, pos=position, game_map=self._map))
+            players.append(_PlayerWithPosition(moveable=p, pos=position, game_map=self._map))
 
         # Ducks may prevent moving other duck. Make them move until there are
         # no more duck to move.

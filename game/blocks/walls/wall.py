@@ -2,18 +2,21 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from game.move_info import MoveInfo
-from game.moveables.moveable import Moveable
 from game.utils.direction import Direction
 from game.utils.move_verdict import MoveVerdict
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from game.blocks.block import AbstractBlock
 
 
 class Wall(ABC):
     @abstractmethod
-    def before_step(self, intruder: Moveable) -> MoveVerdict:
+    def before_step(self, intruder: 'AbstractBlock') -> MoveVerdict:
         return MoveVerdict.NO_VERDICT
 
     @abstractmethod
-    def after_step(self, intruder: Moveable) -> None:
+    def after_step(self, intruder: 'AbstractBlock') -> None:
         pass
 
 
@@ -33,13 +36,13 @@ class WallContainer():
     def set_side(self, wall: Wall, side: Direction):
         self._walls[side] =  wall
 
-    def before_step(self, intruder: Moveable, i : MoveInfo) -> MoveVerdict:
+    def before_step(self, intruder: 'AbstractBlock', i : MoveInfo) -> MoveVerdict:
         wall_side = Direction.opposite(i.direction)
         wall = self._walls.get(wall_side)
         if wall is None:
             return MoveVerdict.NO_VERDICT
         return self._walls[wall_side].before_step(intruder)
 
-    def after_step(self, intruder: Moveable, i: MoveInfo) -> None:
+    def after_step(self, intruder: 'AbstractBlock', i: MoveInfo) -> None:
         wall_side = Direction.opposite(i.direction)
         return self._walls[wall_side].after_step(intruder)
