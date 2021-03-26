@@ -1,5 +1,4 @@
-import logging
-from typing import Iterable, Tuple, List, Dict, Union
+from typing import Iterable, Tuple, List, Dict
 
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.deadly import DeadlyRockBlock
@@ -21,10 +20,12 @@ class GameMap:
             for h in range(self._map_size.height):
                 column.append(GameStack())
 
-    def block(self, pos: Position) -> Union[GameStack, DeadlyRockBlock]:
+    def block(self, pos: Position) -> GameStack:
         if pos.x >= self._map_size.width or pos.x < 0 or \
                 pos.y >= self._map_size.height or pos.y < 0:
-            return DeadlyRockBlock()
+            gs = GameStack()
+            gs.push(DeadlyRockBlock())
+            return gs
         return self._blocks[pos.x][pos.y]
 
     def blocks(self) -> Dict[Position, GameStack]:
