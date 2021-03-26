@@ -4,6 +4,7 @@ from typing import Type, Optional, Callable, Any
 
 from game.blocks.impl.duck_pool import DuckPoolBlock
 from game.blocks.impl.melting_ice import MeltingIceBlock
+from game.blocks.impl.player import Player
 from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
@@ -112,7 +113,10 @@ class BlockSelectionController(SelectionController):
             return
         for pos in self.selected_items:
             # There is always a default constructor
-            self._map.replace_at(pos, block_view_factory.to_block(block_type))
+            block = block_view_factory.to_block(block_type)
+            if isinstance(block, Player):
+                block.initialize(pos, self._map.game_map)
+            self._map.replace_at(pos, block)
 
     @_with_redraw
     def put_wall_to_selection(self, side: Direction, wall: Optional[Wall]) -> None:

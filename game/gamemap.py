@@ -52,7 +52,10 @@ class GameMap:
         cell = self._block_as_stack(pos_from)
         if cell.top() != what:
             raise GameError('Block should be a stack object. PutBlock target might be out of bounds.')
-        self.putBlock(pos_to, cell.pop())
+        block_to_move = cell.pop()
+        if isinstance(block_to_move, Player):
+            block_to_move._position = pos_to
+        self.putBlock(pos_to, block_to_move)
 
     def clearBlock(self, pos: Position):
         self._block_as_stack(pos).clear()

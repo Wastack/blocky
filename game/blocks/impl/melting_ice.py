@@ -5,7 +5,7 @@ from game.blocks.impl.player import Player
 from game.blocks.impl.rock import RockBlock
 from game.blocks.walls.wall import WallContainer
 from game.move_info import MoveInfo
-from game.moveables.moveable import Moveable
+from game.moveables.movable import Movable
 from game.utils.move_verdict import MoveVerdict
 
 

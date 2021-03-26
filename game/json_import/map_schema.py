@@ -177,6 +177,8 @@ class MapSchema(Schema):
         cell_data = data["cells"]
         for c in cell_data:
             for b in c["blocks"]:
+                if isinstance(b, Player):
+                    b.initialize(position=c["pos"], game_map=map)
                 map.putBlock(c["pos"], b)
         return map
 
