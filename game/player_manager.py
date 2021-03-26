@@ -59,7 +59,7 @@ class PlayerManager:
                 # Assume player is on top of the stack
                 if type(self._map.block(prev_pos).pop()) != Player:
                     raise ValueError("Captured player not found when trying to remove it")
-                return
+                return True
             prev_pos = new_pos
             cell_to_interact.after_step(p, move_info)
             move_info.momentum += 1
