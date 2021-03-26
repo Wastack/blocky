@@ -19,19 +19,37 @@ class PlayerManager:
     def __init__(self, game_map: GameMap):
         self._map = game_map
 
-    def move_all_players(self, direction: Direction):
-        player_info = [p for p in self._map.getPlayers() if p[0].is_alive()]
-        for player, pos in player_info:
-            self.step_with(player, pos, direction)
+    def move_all_players(self, direction: Direction) -> None:
+        """
+        Moves all players until they cannot move any longer.
+        :param direction: Direction the players take
+        """
 
-    def step_with(self, p: Player, current_position: Position, direction: Direction):
+        # Ducks may prevent moving other duck. Make them move until there are
+        # no more duck to move.
+        state_changed = True
+        while state_changed:
+            player_info = [p for p in self._map.getPlayers() if p[0].is_alive()]
+            state_changed = any([self.step_with(player, pos, direction) for player, pos in player_info])
+
+    def step_with(self, p: Player, current_position: Position, direction: Direction) -> bool:
+        """
+        :param p: Player to move
+        :param current_position:  Current position of player
+        :param direction: Direction the player takes
+        :return: False, if nothing changed. True otherwise.
+        """
+        is_state_changed = False
         verdict = MoveVerdict.MOVE
+
         prev_pos = current_position
         move_info = MoveInfo(direction=direction, momentum=0)
         while verdict == MoveVerdict.MOVE:
             new_pos = _dir_func_map.get(direction)(prev_pos)
             cell_to_interact = self._map.block(new_pos)
             verdict = cell_to_interact.before_step(p, move_info)
+            if verdict != MoveVerdict.NO_MOVE:
+                is_state_changed = True
             logging.debug(f"Verdict of {new_pos} is {verdict}")
             if verdict == MoveVerdict.MOVE:
                 #logging.debug(f"Player steps from: {prev_pos} to {new_pos}")
@@ -46,5 +64,5 @@ class PlayerManager:
             cell_to_interact.after_step(p, move_info)
             move_info.momentum += 1
 
-        if move_info.momentum > 0:
-            p.set_facing(direction)
+        p.set_facing(direction)
+        return is_state_changed
