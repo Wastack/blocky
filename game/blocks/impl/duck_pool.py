@@ -34,6 +34,10 @@ class DuckPoolBlock(RockBlock):
         return self._capacity - len(self._blocks_in_pool)
 
     @property
+    def captured_count(self) -> int:
+        return len(self._blocks_in_pool)
+
+    @property
     def capacity(self) -> int:
         return self._capacity
 

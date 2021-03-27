@@ -34,13 +34,18 @@ class DuckPoolBlockView(BlockView):
         if self._text_id is not None:
             self.destroy()
 
-        if self._block.capacity < 1:
-            pass  # TODO impl
+        if self._block.capacity < 0:
+            pass  # TODO WHAT
+
+        captured_count = self._block.captured_count
+        if captured_count > 0:
+            draw_count = 3 if captured_count > 2 else captured_count
+            self._png_file_name = f"duck_pool_{draw_count}_duck.png"
 
         rect = super().draw(pos)
 
         if self._block.capacity > -1:
-            self._text_id = self._create_text(pos, text=f"{self._block.capacity}")
+            self._text_id = self._create_text(pos, text=f"{self._block.free_space}")
 
         # Draw walls
         wall_container = self._block.walls()

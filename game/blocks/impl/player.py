@@ -31,13 +31,14 @@ class Player(Movable):
         self._facing = direction
 
     def before_step(self, intruder: 'AbstractBlock', i: MoveInfo) -> MoveVerdict:
-        if type(intruder) == Player:
-            # Start moving, so the other duck can finish its moving as well
-            state_changed = self.move(i.direction)
-            if state_changed:
-                return MoveVerdict.MOVE  # We went out of the way
-            else:
-                return MoveVerdict.NO_MOVE  # Cannot move out of the way
+        # Start moving, so the other duck can finish its moving as well
+        state_changed = self.move(i.direction)
+        if state_changed:
+            logging.info("Move")
+            return MoveVerdict.MOVE  # We went out of the way
+        else:
+            logging.info("NoMove")
+            return MoveVerdict.NO_MOVE  # Cannot move out of the way
 
     @property
     def facing(self) -> Direction:

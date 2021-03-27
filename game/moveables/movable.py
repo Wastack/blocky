@@ -39,8 +39,10 @@ class Movable(AbstractBlock):
         :param d: Direction the movable object takes
         :return: True, if state changed, false otherwise
         """
-        if self._position is None:
+        if self._game_map is None:
             raise ValueError("Movable object is not initialized")
+        elif self._position is None:
+            return False  # might be captured
 
         t = self._game_map.block(self._position).top()
         if type(t) != type(self):
@@ -66,6 +68,7 @@ class Movable(AbstractBlock):
             elif verdict == MoveVerdict.CAPTURED:
                 # Movable is captured by something, remove from map
                 self._game_map.block(self._position).pop()
+                self._position = None
             cell_to_interact.after_step(self, move_info)
             move_info.momentum += 1
 
