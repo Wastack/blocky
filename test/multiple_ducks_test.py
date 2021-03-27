@@ -1,5 +1,6 @@
 import pytest
 
+from game.blocks.impl.boulder import Boulder
 from game.utils.direction import Direction
 from game.utils.position import Position
 from test.utils import loadMap
@@ -44,3 +45,17 @@ def test_two_ducks_against_melting_ice():
     assert p1.is_alive
     p2: 'Player' = map.block(Position(5, 0)).top()
     assert p2.is_alive
+
+def test_duck_boulder_duck():
+    # Given
+    map, manager = loadMap("test_duck_boulder_duck.json")
+
+    # When
+    manager.move_all_players(Direction.RIGHT)
+
+    # Then
+    p1: 'Player'= map.block(Position(3, 0)).top()
+    assert p1.is_alive
+    p2: 'Player' = map.block(Position(5, 0)).top()
+    assert p2.is_alive
+    assert type(map.block(Position(4, 0)).top()) == Boulder

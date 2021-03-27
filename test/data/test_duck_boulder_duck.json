@@ -1,0 +1,1 @@
+{"map_size": {"height": 1, "width": 7}, "cells": [{"blocks": [{"type": "Stone"}], "pos": {"y": 0, "x": 0}}, {"blocks": [{"type": "Anna"}], "pos": {"y": 0, "x": 1}}, {"blocks": [{"type": "RollingBlock"}], "pos": {"y": 0, "x": 2}}, {"blocks": [{"type": "Anna"}], "pos": {"y": 0, "x": 3}}, {"blocks": [{"type": "Stone"}], "pos": {"y": 0, "x": 6}}]}
