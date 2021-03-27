@@ -1,5 +1,6 @@
 import logging
 
+from game.blocks.block import AbstractBlock
 from game.blocks.impl.rock import RockBlock
 from game.move_info import MoveInfo
 from game.utils.direction import Direction
@@ -19,9 +20,13 @@ dir_func_map = {
 }
 
 
-class Movable(RockBlock):
-    def __init__(self, pos: Position, game_map: 'GameMap'):
+class Movable(AbstractBlock):
+    def __init__(self):
         super().__init__()
+        self._position = None
+        self._game_map = None
+
+    def initialize(self, pos: Position, game_map: 'GameMap'):
         self._position = pos
         self._game_map = game_map
 
@@ -34,6 +39,9 @@ class Movable(RockBlock):
         :param d: Direction the movable object takes
         :return: True, if state changed, false otherwise
         """
+        if self._position is None:
+            raise ValueError("Movable object is not initialized")
+
         t = self._game_map.block(self._position).top()
         if type(t) != type(self):
             raise ValueError(
@@ -71,3 +79,9 @@ class Movable(RockBlock):
         False means moving is aborted.
         """
         return True
+
+    def before_step(self, intruder: 'AbstractBlock', move_info: MoveInfo) -> MoveVerdict:
+        return MoveVerdict.NO_MOVE
+
+    def after_step(self, intruder: 'AbstractBlock', move_info: MoveInfo):
+        return

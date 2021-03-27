@@ -7,12 +7,14 @@ from game.blocks.impl.empty_block import EmptyBlock
 from game.blocks.impl.melting_ice import MeltingIceBlock
 from game.blocks.impl.player import Player
 from game.blocks.impl.rock import RockBlock
+from game.blocks.impl.boulder import Boulder
 from gui.block_views.block import BlockView
 from gui.block_views.duck_pool import DuckPoolBlockView
 from gui.block_views.empty_block import EmptyBlockView
 from gui.block_views.melting_ice import MeltingIceBlockView
 from gui.block_views.player import PlayerBlockView
 from gui.block_views.rock_block import RockBlockView
+from gui.block_views.boulder import BoulderView
 
 registered_block_views = {
     EmptyBlockView : EmptyBlock,
@@ -20,6 +22,7 @@ registered_block_views = {
     PlayerBlockView: Player,
     MeltingIceBlockView: MeltingIceBlock,
     DuckPoolBlockView: DuckPoolBlock,
+    BoulderView: Boulder,
 }
 
 

@@ -9,6 +9,7 @@ from game.blocks.impl.empty_block import EmptyBlock
 from game.blocks.impl.melting_ice import MeltingIceBlock
 from game.blocks.impl.player import Player
 from game.blocks.impl.rock import RockBlock
+from game.blocks.impl.boulder import Boulder
 from game.blocks.walls.killer_wall import KillerWall
 from game.blocks.walls.wall import WallContainer
 from game.gamemap import GameMap
@@ -129,6 +130,13 @@ class DuckPoolSchema(Schema):
         return {"walls": result, "capacity": duck_pool_block.capacity}
 
 
+class RollingBlockSchema(Schema):
+
+    @post_load
+    def make_player(self, data, **kwargs) -> Boulder:
+        return Boulder()
+
+
 class AbstractBlockSchema(OneOfSchema):
     type_field = "type"
     type_schemas = {
@@ -136,19 +144,23 @@ class AbstractBlockSchema(OneOfSchema):
         "Stone": RockSchema,
         "MeltingIce": MeltingIceSchema,
         "DuckPool": DuckPoolSchema,
+        "RollingBlock" : RollingBlockSchema,
     }
 
     def get_obj_type(self, obj):
         # Order of isinstance is important: subclasses of more general classes
         # should be at front.
-        if type(obj) == Player:
+        obj_type = type(obj)
+        if obj_type == Player:
             return "Anna"
-        elif type(obj) == MeltingIceBlock:
+        elif obj_type == MeltingIceBlock:
             return "MeltingIce"
-        elif type(obj) == DuckPoolBlock:
+        elif obj_type == DuckPoolBlock:
             return "DuckPool"
-        elif type(obj) == RockBlock:
+        elif obj_type == RockBlock:
             return "Stone"
+        elif obj_type == Boulder:
+            return "RollingBlock"
         else:
             raise Exception("Unknown object type: {}".format(obj.__class__.__name__))
 
@@ -177,8 +189,12 @@ class MapSchema(Schema):
         cell_data = data["cells"]
         for c in cell_data:
             for b in c["blocks"]:
-                if isinstance(b, Player):
-                    b.initialize(position=c["pos"], game_map=map)
+                # Try to initialize it as a movable
+                try:
+                    b.initialize(pos=c["pos"], game_map=map)
+                except AttributeError:
+                    pass
+
                 map.putBlock(c["pos"], b)
         return map
 

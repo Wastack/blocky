@@ -34,9 +34,19 @@ class MeltingIceBlock(RockBlock):
         self._life = life
 
     def before_step(self, intruder: AbstractBlock, i: MoveInfo) -> MoveVerdict:
-        if self._life > 0:
-            # Ice only melts if intruder comes from a distance
-            if i.momentum > 0:
-                self._life -= 1
-            return super(MeltingIceBlock, self).before_step(intruder, i)
-        return MoveVerdict.MOVE
+        if self._life <= 0:
+            return MoveVerdict.MOVE
+
+        rock_block_verdict = super(MeltingIceBlock, self).before_step(intruder, i)
+
+        # Ice only melts if intruder comes from a distance
+        if i.momentum > 0:
+            try:
+                intruder.is_alive
+            except AttributeError:
+                # only melt for 'player like' objects
+                return rock_block_verdict
+
+            self._life -= 1
+
+        return rock_block_verdict

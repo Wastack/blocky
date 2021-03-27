@@ -16,7 +16,6 @@ from gui.block_views.wall_views.wall_view import WallView
 class RockBlockView(BlockView):
     def __init__(self, canvas: tkinter.Canvas):
         super().__init__(canvas)
-        self._text_id = None
         self._wall_views: List[WallView] = []
         self._png_file_name = "brick.png"
 
@@ -30,8 +29,7 @@ class RockBlockView(BlockView):
         return rock_view
 
     def draw(self, pos: Position) -> Any:
-        if self._text_id is not None:
-            self.destroy()
+        self.destroy()
 
         # Draw rectangle with rock identifier
         rect = super().draw(pos)
@@ -58,10 +56,6 @@ class RockBlockView(BlockView):
                 continue
             w.destroy()
         self._wall_views.clear()
-
-        if self._text_id is not None:
-            self._canvas.delete(self._text_id)
-            self._text_id = None
 
     @staticmethod
     def repr() -> str:

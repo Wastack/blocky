@@ -3,6 +3,7 @@ from typing import Optional
 
 import pytest
 
+from game.blocks.impl.boulder import Boulder
 from game.gamemap import GameMap
 from game.utils.direction import Direction
 from game.utils.position import Position
@@ -169,3 +170,16 @@ def test_duckpool():
     assert pool.capacity == -1
     assert pool.free_space == -1
     assert len(pool._blocks_in_pool) == 1
+
+def test_boulder():
+    # Given
+    map, manager = loadMap("test_boulder.json")
+
+    # When
+    manager.move_all_players(Direction.RIGHT)
+
+    # Then
+    player: Player = map.block(Position(3, 0)).top()
+    assert player.is_alive
+    boulder: Boulder = map.block(Position(4, 0)).top()
+    assert type(boulder) == Boulder

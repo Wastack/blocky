@@ -7,5 +7,11 @@ from game.utils.move_verdict import MoveVerdict
 class DeadlyRockBlock(RockBlock):
 
     def before_step(self, intruder: AbstractBlock, _i : MoveInfo) -> MoveVerdict:
-        intruder.set_dead()
+
+        # Try to kill it
+        try:
+            intruder.set_dead()
+        except AttributeError:
+            pass
+
         return MoveVerdict.NO_MOVE

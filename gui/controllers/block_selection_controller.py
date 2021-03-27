@@ -114,8 +114,13 @@ class BlockSelectionController(SelectionController):
         for pos in self.selected_items:
             # There is always a default constructor
             block = block_view_factory.to_block(block_type)
-            if isinstance(block, Player):
+
+            # Try to initialize it as a movable object
+            try:
                 block.initialize(pos, self._map.game_map)
+            except AttributeError:
+                pass
+
             self._map.replace_at(pos, block)
 
     @_with_redraw
