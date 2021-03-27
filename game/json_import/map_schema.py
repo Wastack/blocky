@@ -100,7 +100,7 @@ class MeltingIceSchema(Schema):
                 continue
             result[direction.value] = val
         if not result:
-            return {}
+            return {"life" : ice_block.life}
         return {"walls": result, "life": ice_block.life}
 
 
@@ -126,7 +126,7 @@ class DuckPoolSchema(Schema):
                 continue
             result[direction.value] = val
         if not result:
-            return {}
+            return {"capacity": duck_pool_block.capacity}
         return {"walls": result, "capacity": duck_pool_block.capacity}
 
 

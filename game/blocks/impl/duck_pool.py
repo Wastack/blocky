@@ -50,9 +50,10 @@ class DuckPoolBlock(RockBlock):
             return walls_verdict
 
         if self.free_space > 0 or self._capacity == -1:
-            # Accept block
-            self._blocks_in_pool.append(intruder)
-            return MoveVerdict.CAPTURED
+            if isinstance(intruder, Player):
+                # Accept block
+                self._blocks_in_pool.append(intruder)
+                return MoveVerdict.CAPTURED
 
         # If full, behaves like a rock
         return super(DuckPoolBlock, self).before_step(intruder, i)
