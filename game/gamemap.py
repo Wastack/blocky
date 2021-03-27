@@ -41,9 +41,8 @@ class GameMap:
             raise GameError("Index out of bounds")
         return self._blocks[pos.x][pos.y]
 
-    def getPlayers(self) -> [Iterable[Tuple[Player, Position]]]:
-        result = [(b, Position(w, h)) for w, row in enumerate(self._blocks) for h, s in enumerate(row) for b in s.get_players()]
-        return result
+    def getPlayers(self) -> Iterable[Player]:
+        return (p for w, row in enumerate(self._blocks) for h, s in enumerate(row) for p in s.get_players())
 
     def putBlock(self, pos: Position, block: AbstractBlock):
         self._block_as_stack(pos).push(block)

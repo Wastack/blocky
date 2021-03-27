@@ -1,11 +1,9 @@
 from typing import Optional
 
 from game.blocks.block import AbstractBlock
-from game.blocks.impl.player import Player
 from game.blocks.impl.rock import RockBlock
 from game.blocks.walls.wall import WallContainer
 from game.move_info import MoveInfo
-from game.moveables.movable import Movable
 from game.utils.move_verdict import MoveVerdict
 
 
@@ -38,7 +36,7 @@ class MeltingIceBlock(RockBlock):
     def before_step(self, intruder: AbstractBlock, i: MoveInfo) -> MoveVerdict:
         if self._life > 0:
             # Ice only melts if intruder comes from a distance
-            if i.momentum > 0 and isinstance(intruder, Player):
+            if i.momentum > 0:
                 self._life -= 1
             return super(MeltingIceBlock, self).before_step(intruder, i)
         return MoveVerdict.MOVE

@@ -9,6 +9,7 @@ from game.utils.position import Position
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from game.gamemap import GameMap
+    from game.blocks.impl.stack import GameStack
 
 dir_func_map = {
     Direction.DOWN: lambda pos: pos + Position(0, 1),
@@ -23,6 +24,10 @@ class Movable(RockBlock):
         super().__init__()
         self._position = pos
         self._game_map = game_map
+
+    @property
+    def position(self) -> Position:
+        return self._position
 
     def move(self, d: Direction) -> bool:
         """
@@ -39,14 +44,15 @@ class Movable(RockBlock):
         while verdict == MoveVerdict.MOVE:
             new_pos = dir_func_map.get(d)(self._position)
             cell_to_interact = self._game_map.block(new_pos)
+            if not self._before_moving(target_cell=cell_to_interact, move_info=move_info):
+                return state_changed
             verdict = cell_to_interact.before_step(self, move_info)
-            # logging.debug(f"Verdict of {new_pos} is {verdict}")
 
             if verdict != MoveVerdict.NO_MOVE:
                 state_changed = True
 
             if verdict == MoveVerdict.MOVE:
-                logging.debug(f"Moving from {self._position} to {new_pos}")
+                #logging.debug(f"Moving from {self._position} to {new_pos}")
                 self._game_map.move(self._position, new_pos, self)
                 self._position = new_pos
             elif verdict == MoveVerdict.CAPTURED:
@@ -56,3 +62,12 @@ class Movable(RockBlock):
             move_info.momentum += 1
 
         return state_changed
+
+    def _before_moving(self, target_cell: 'GameStack', move_info: MoveInfo) -> bool:
+        """
+        This method is called before calling before_step on target cell to
+        move to, so it can be customized by subclasses
+        :returns True if moving should be continued as normal.
+        False means moving is aborted.
+        """
+        return True

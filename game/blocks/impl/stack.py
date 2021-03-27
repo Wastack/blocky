@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Iterable
 
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.empty_block import EmptyBlock
@@ -30,8 +30,8 @@ class GameStack(AbstractBlock):
     def data(self) -> List[AbstractBlock]:
         return self._data[:]
 
-    def get_players(self) -> List[Player]:
-        return [x for x in self._data if isinstance(x, Player)]
+    def get_players(self) -> Iterable[Player]:
+        return (x for x in self._data if isinstance(x, Player))
 
     def clear(self):
         self._data.clear()
