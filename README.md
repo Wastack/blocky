@@ -25,3 +25,11 @@ conda create --name <env_name> --file requirements.txt
 ```bash
 PYTHONPATH=. python3 gui/editor.py
 ```
+
+### Running tests
+
+You need [pytest](https://docs.pytest.org/en/stable/getting-started.html) to do that
+
+```bash
+py.test test
+```

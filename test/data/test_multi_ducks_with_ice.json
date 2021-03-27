@@ -1,0 +1,1 @@
+{"map_size": {"height": 1, "width": 8}, "cells": [{"pos": {"y": 0, "x": 0}, "blocks": [{"type": "Stone"}]}, {"pos": {"y": 0, "x": 2}, "blocks": [{"type": "Anna"}]}, {"pos": {"y": 0, "x": 3}, "blocks": [{"type": "Anna"}]}, {"pos": {"y": 0, "x": 6}, "blocks": [{"type": "MeltingIce"}]}, {"pos": {"y": 0, "x": 7}, "blocks": [{"type": "Stone"}]}]}
