@@ -1,5 +1,7 @@
 Logic game with cute ducks
 
+![Screenshot](/images/game_screenshot.png)
+
 ### Rules
 
 - Ducks ain't that clever. After choosing a direction, they move until they hit the wall. Or something worse.
@@ -33,3 +35,8 @@ You need [pytest](https://docs.pytest.org/en/stable/getting-started.html) to do 
 ```bash
 py.test test
 ```
+
+### License
+
+Project is under MIT license. See `LICENSE` file for details.
+
