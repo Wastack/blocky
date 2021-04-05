@@ -1,3 +1,4 @@
+# Blocky
 Logic game with cute ducks
 
 ![Screenshot](/images/game_screenshot.png)
@@ -27,6 +28,9 @@ conda create --name <env_name> --file requirements.txt
 ```bash
 PYTHONPATH=. python3 gui/editor.py
 ```
+
+This will start the editor. From here, you can either create a new map,
+open an already existing one, or start the game with `game -> start`.
 
 ### Running tests
 
