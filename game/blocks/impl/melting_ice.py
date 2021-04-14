@@ -39,14 +39,14 @@ class MeltingIceBlock(RockBlock):
 
         rock_block_verdict = super(MeltingIceBlock, self).before_step(intruder, i)
 
-        # Ice only melts if intruder comes from a distance
-        if i.momentum > 0:
-            try:
-                intruder.is_alive
-            except AttributeError:
-                # only melt for 'player like' objects
-                return rock_block_verdict
+        # Ice only melts if intruder comes from a distance. If they don't have
+        # a momentum property, assume that it cannot break
+        try:
+            if intruder.momentum > 0:
+                self._life -= 1
+        except AttributeError:
+            # only melt for 'player like' objects
+            return rock_block_verdict
 
-            self._life -= 1
 
         return rock_block_verdict

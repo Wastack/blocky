@@ -6,3 +6,5 @@ class MoveVerdict(Enum):
     NO_MOVE = 1
     NO_VERDICT = 2
     CAPTURED = 3
+    DELAYED = 4
+    INACTIVE = 5

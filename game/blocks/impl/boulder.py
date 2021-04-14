@@ -14,14 +14,15 @@ class Boulder(Movable):
             return MoveVerdict.NO_MOVE
 
         # Trying to roll
-        if self.move(i.direction):
-            logging.debug("I could move")
+        self_move_verdict = self.move(i.direction)
+        if self_move_verdict == MoveVerdict.MOVE or \
+                self_move_verdict == MoveVerdict.CAPTURED:
+            logging.debug("I am no longer in the way")
             # I was able to move out from the way
             return MoveVerdict.MOVE
+        elif self_move_verdict == MoveVerdict.DELAYED:
+            return self_move_verdict
         else:
             logging.debug("I could NOT move")
             # Cannot move out ot the way
             return super(Boulder, self).before_step(intruder, i)
-
-    def _before_moving(self, target_cell, move_info) -> bool:
-        return True

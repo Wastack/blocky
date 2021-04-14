@@ -1,8 +1,11 @@
 import random
+from typing import Iterable
 
 from game.blocks.block import AbstractBlock
+from game.blocks.impl.player import Player
 from game.gamemap import GameMap
 from game.utils.direction import Direction
+from game.utils.move_verdict import MoveVerdict
 
 
 class PlayerManager:
@@ -19,8 +22,40 @@ class PlayerManager:
     def turn_id(self) -> int:
         return self._turn_id
 
-    def move_one(self, moveable: AbstractBlock, direction: Direction) -> bool:
+    def move_one_player(self, moveable: AbstractBlock, direction: Direction) -> bool:
         raise NotImplementedError()
+
+    def move_all_players_one_step(self, direction: Direction, players_to_move: Iterable[Player]) -> bool:
+        """
+        :param players_to_move: a collection of players that should be moved
+        :return: True if there is a change and so the turn is not over. False otherwise.
+        """
+
+
+        players = [p for p in players_to_move if p.is_alive and p.is_active]
+        for p in players:
+            p.set_active()
+
+        state_changed_overall = False
+
+        state_changed_in_loop = True
+        while state_changed_in_loop:
+            state_changed_in_loop = False
+            delayed = []
+            for p in players:
+                verdict = p.move(direction)
+                if verdict == MoveVerdict.DELAYED:
+                    delayed.append(p)  # Moving postponed
+                elif verdict == verdict.MOVE:
+                    state_changed_overall = True
+                    state_changed_in_loop = True
+
+            # Next loop with delayed players
+            players = delayed
+
+        # TODO also return movement infos
+        return state_changed_overall
+
 
     def move_all_players(self, direction: Direction) -> None:
         """
@@ -33,8 +68,9 @@ class PlayerManager:
 
         # Set turn ID on players
         for p in players:
-            p.set_turn_id(self.turn_id)
+            p.reset_turn(self.turn_id)
 
-        # Start moving players
-        for p in (x for x in players if x.is_alive):
-            p.move(direction)
+        state_changed = True
+        while state_changed:
+            state_changed = self.move_all_players_one_step(direction, players)
+            # TODO yield movement info
