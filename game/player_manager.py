@@ -22,6 +22,16 @@ class PlayerManager:
     def turn_id(self) -> int:
         return self._turn_id
 
+    def _new_turn(self) -> Iterable[Player]:
+        self.__reset_id()
+        players = list(self._map.getPlayers())
+
+        # Set turn ID on players
+        for p in players:
+            p.reset_turn(self.turn_id)
+
+        return players
+
     def move_one_player(self, moveable: AbstractBlock, direction: Direction) -> bool:
         raise NotImplementedError()
 
@@ -63,12 +73,7 @@ class PlayerManager:
         :param direction: Direction the players take
         """
 
-        self.__reset_id()
-        players = list(self._map.getPlayers())
-
-        # Set turn ID on players
-        for p in players:
-            p.reset_turn(self.turn_id)
+        players = self._new_turn()
 
         state_changed = True
         while state_changed:
