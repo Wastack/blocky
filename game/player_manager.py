@@ -89,9 +89,10 @@ class PlayerManager:
 
         players = self._new_turn()
 
-        reports = [None]  # None is hack for having a do while
-        while len(reports) > 0:
+        while True:
             reports = self.move_all_players_one_step(direction, players)
             sch = StepSchema()
             print(sch.dumps(reports))
+            if not reports:
+                break
             yield reports
