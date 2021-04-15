@@ -78,9 +78,9 @@ class PlayerManager:
         Moves all players until they cannot move any longer.
         :param direction: Direction the players take
         """
-        return list(self.execute_turn_yield_steps(direction))
+        return list(self.execute_steps_in_turn(direction))
 
-    def execute_turn_yield_steps(self, direction: Direction) -> Iterable:
+    def execute_steps_in_turn(self, direction: Direction) -> Iterable[List[MoveReport]]:
         """
         Executes one *turn*. Thus, players move until they cannot move any longer.
         Each *step* during execution is yielded.
