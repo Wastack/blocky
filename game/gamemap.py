@@ -1,9 +1,10 @@
-from typing import Iterable, Tuple, List, Dict
+from typing import Iterable, List, Dict
 
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.deadly import DeadlyRockBlock
 from game.blocks.impl.player import Player
 from game.blocks.impl.stack import GameStack
+from game.moveables.movable import Movable
 from game.utils.game_error import GameError
 from game.utils.position import Position
 from game.utils.size import Size
@@ -52,7 +53,7 @@ class GameMap:
         if cell.top() != what:
             raise GameError('Block should be a stack object. PutBlock target might be out of bounds.')
         block_to_move = cell.pop()
-        if isinstance(block_to_move, Player):
+        if isinstance(block_to_move, Movable):
             block_to_move._position = pos_to
         self.putBlock(pos_to, block_to_move)
 

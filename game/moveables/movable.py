@@ -2,7 +2,7 @@ import logging
 
 from game.blocks.block import AbstractBlock
 from game.move_info import MoveInfo
-from game.utils.MoveReports import PlayerMoveReport
+from game.utils.MoveReports import MovableMoveReport
 from game.utils.direction import Direction
 from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 from game.utils.position import Position
@@ -10,7 +10,6 @@ from game.utils.position import Position
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from game.gamemap import GameMap
-    from game.blocks.impl.stack import GameStack
 
 dir_func_map = {
     Direction.DOWN: lambda pos: pos + Position(0, 1),
@@ -59,14 +58,17 @@ class Movable(AbstractBlock):
         cell_to_interact.after_step(self, move_info)
 
         if result.verdict == MoveVerdictEnum.MOVE:
-            #logging.debug(f"Moving from {self._position} to {new_pos}")
+
+            # Original position needs to be saved, because game map overrides it
+            # when it moves player object
+            original_position = self._position
+
             self._game_map.move(self._position, new_pos, self)
-            result.reports.append(PlayerMoveReport(pos_was=self._position, pos_now=new_pos))
-            self._position = new_pos
+            result.reports.append(MovableMoveReport(pos_was=original_position, pos_now=new_pos))
         elif result.verdict == MoveVerdictEnum.CAPTURED:
             # Movable is captured by something, remove from map
             self._game_map.block(self._position).pop()
-            result.reports.append(PlayerMoveReport(pos_was=self._position, pos_now=None, captured=True))
+            result.reports.append(MovableMoveReport(pos_was=self._position, pos_now=None, captured=True))
             self._position = None
 
         return result
