@@ -20,15 +20,17 @@ class MoveReport(ABC):
 class MeltingIceReport(MoveReport):
     life_was: int
     life_now: int
+    position: 'Position'
 
 
 @dataclass
 class MovableMoveReport(MoveReport):
-    pos_was: 'Position'
-    pos_now: 'Optional[Position]'
+    position: 'Position'
+    target: 'Optional[Position]'
     captured: bool = False
 
 
 @dataclass
-class PlayerMoveReport(MovableMoveReport):
+class PlayerMoveReport(MoveReport):
+    position: 'Position'
     died: bool = False

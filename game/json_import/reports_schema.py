@@ -12,6 +12,7 @@ from game.utils.MoveReports import MeltingIceReport, PlayerMoveReport, \
 class MeltingIceReportSchema(Schema):
     life_was = fields.Integer()
     life_now = fields.Integer()
+    position = fields.Nested(PositionSchema)
 
     @pre_dump
     def _pre_dump(self, report: MeltingIceReport, **_kwargs):
@@ -23,8 +24,8 @@ class MeltingIceReportSchema(Schema):
 
 
 class MovableMoveReportSchema(Schema):
-    pos_was = fields.Nested(PositionSchema)
-    pos_now = fields.Nested(PositionSchema)
+    position = fields.Nested(PositionSchema)
+    target = fields.Nested(PositionSchema)
     captured = fields.Boolean()
 
     @pre_dump
@@ -36,8 +37,9 @@ class MovableMoveReportSchema(Schema):
         return MovableMoveReport(**data)
 
 
-class PlayerMoveReportSchema(MovableMoveReportSchema):
+class PlayerMoveReportSchema(Schema):
     died = fields.Boolean()
+    position = fields.Nested(PositionSchema)
 
     @pre_dump
     def _pre_dump(self, report: PlayerMoveReport, **_kwargs):

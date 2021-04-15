@@ -19,7 +19,7 @@ class DeadlyRockBlock(RockBlock):
             intruder: 'Player'
             intruder.set_dead()
             verdict.reports.append(PlayerMoveReport(
-                pos_was=intruder.position, pos_now=None, died=True))
+                position=intruder.position, died=True))
         except AttributeError:
             pass
 

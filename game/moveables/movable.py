@@ -51,7 +51,7 @@ class Movable(AbstractBlock):
             raise ValueError(
                 f"Cannot find movable object of type {type(self)} in position {self._position} Unexpected type: {type(t)}")
 
-        move_info = MoveInfo(direction=d)
+        move_info = MoveInfo(direction=d, target=self._position)
         new_pos = dir_func_map.get(d)(self._position)
         cell_to_interact = self._game_map.block(new_pos)
         result: MoveVerdict = cell_to_interact.before_step(self, move_info)
@@ -64,11 +64,11 @@ class Movable(AbstractBlock):
             original_position = self._position
 
             self._game_map.move(self._position, new_pos, self)
-            result.reports.append(MovableMoveReport(pos_was=original_position, pos_now=new_pos))
+            result.reports.append(MovableMoveReport(position=original_position, target=new_pos))
         elif result.verdict == MoveVerdictEnum.CAPTURED:
             # Movable is captured by something, remove from map
             self._game_map.block(self._position).pop()
-            result.reports.append(MovableMoveReport(pos_was=self._position, pos_now=None, captured=True))
+            result.reports.append(MovableMoveReport(position=self._position, target=None, captured=True))
             self._position = None
 
         return result
