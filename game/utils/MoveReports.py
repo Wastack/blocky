@@ -7,6 +7,10 @@ if TYPE_CHECKING:
     from game.utils.position import Position
 
 
+# Class objects defined in this files are serialized by converting dataclasses
+# to dicts. This means, serialized keys depend on variable name
+
+
 @dataclass
 class MoveReport(ABC):
     pass

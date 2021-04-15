@@ -4,7 +4,8 @@ from typing import Iterable, List
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.player import Player
 from game.gamemap import GameMap
-from game.utils.MoveReports import MoveReport, PlayerMoveReport
+from game.json_import.reports_schema import StepSchema
+from game.utils.MoveReports import MoveReport
 from game.utils.direction import Direction
 from game.utils.move_verdict import MoveVerdictEnum
 
@@ -51,7 +52,6 @@ class PlayerManager:
 
         reports: List[MoveReport] = []
 
-
         # Collect players that are unable to move *temporarly*, and move them
         # in the next loop.
         state_changed_in_loop = True
@@ -92,4 +92,6 @@ class PlayerManager:
         reports = [None]  # None is hack for having a do while
         while len(reports) > 0:
             reports = self.move_all_players_one_step(direction, players)
+            sch = StepSchema()
+            print(sch.dumps(reports))
             yield reports
