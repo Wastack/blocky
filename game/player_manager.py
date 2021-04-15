@@ -1,3 +1,4 @@
+import logging
 import random
 from typing import Iterable, List
 
@@ -92,7 +93,7 @@ class PlayerManager:
         while True:
             reports = self.move_all_players_one_step(direction, players)
             sch = StepSchema()
-            print(sch.dumps(reports))
+            logging.debug(sch.dumps(reports))
             if not reports:
                 break
             yield reports

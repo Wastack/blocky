@@ -48,8 +48,8 @@ class EditorGUI:
         schema = MapSchema()
         map_model = schema.load(json_data)
 
-        self._reset_canvas(map_model)
         self._create_menu()
+        self._reset_canvas(map_model)
 
         # Waiting for events. Blocks the execution
         self._window.mainloop()
