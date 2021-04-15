@@ -2,6 +2,7 @@ import logging
 
 from game.blocks.block import AbstractBlock
 from game.move_info import MoveInfo
+from game.utils.MoveReports import PlayerMoveReport
 from game.utils.direction import Direction
 from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 from game.utils.position import Position
@@ -54,16 +55,18 @@ class Movable(AbstractBlock):
         move_info = MoveInfo(direction=d)
         new_pos = dir_func_map.get(d)(self._position)
         cell_to_interact = self._game_map.block(new_pos)
-        result = cell_to_interact.before_step(self, move_info)
+        result: MoveVerdict = cell_to_interact.before_step(self, move_info)
         cell_to_interact.after_step(self, move_info)
 
         if result.verdict == MoveVerdictEnum.MOVE:
             #logging.debug(f"Moving from {self._position} to {new_pos}")
             self._game_map.move(self._position, new_pos, self)
+            result.reports.append(PlayerMoveReport(pos_was=self._position, pos_now=new_pos))
             self._position = new_pos
         elif result.verdict == MoveVerdictEnum.CAPTURED:
             # Movable is captured by something, remove from map
             self._game_map.block(self._position).pop()
+            result.reports.append(PlayerMoveReport(pos_was=self._position, pos_now=None, captured=True))
             self._position = None
 
         return result

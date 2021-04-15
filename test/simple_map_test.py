@@ -31,7 +31,7 @@ def test_empty_moveright():
     map, manager = loadMap("test_empty.json")
 
     # When
-    manager.move_all_players(Direction.RIGHT)
+    manager.execute_turn(Direction.RIGHT)
 
     # Then
     p = _find_one_player(map)
@@ -44,7 +44,7 @@ def test_empty_moveleft():
     map, manager = loadMap("test_empty.json")
 
     # When
-    manager.move_all_players(Direction.LEFT)
+    manager.execute_turn(Direction.LEFT)
 
     #Then
     p = _find_one_player(map)
@@ -57,14 +57,14 @@ def test_stone_moveleft():
     map, manager = loadMap("test_stone.json")
 
     # When
-    manager.move_all_players(Direction.LEFT)
+    manager.execute_turn(Direction.LEFT)
 
     # Then
     p = _find_one_player(map)
     assert p.position == Position(3, 0)
 
     # When
-    manager.move_all_players(Direction.LEFT)
+    manager.execute_turn(Direction.LEFT)
 
     # Then
     p = _find_one_player(map)
@@ -77,13 +77,13 @@ def test_stone_movearound():
     map, manager = loadMap("test_stone_4x4.json")
 
     # When-Then
-    manager.move_all_players(Direction.RIGHT)
+    manager.execute_turn(Direction.RIGHT)
     assert _find_one_player(map).position == Position(2, 1)
-    manager.move_all_players(Direction.DOWN)
+    manager.execute_turn(Direction.DOWN)
     assert _find_one_player(map).position == Position(2, 2)
-    manager.move_all_players(Direction.LEFT)
+    manager.execute_turn(Direction.LEFT)
     assert _find_one_player(map).position == Position(1, 2)
-    manager.move_all_players(Direction.UP)
+    manager.execute_turn(Direction.UP)
     assert _find_one_player(map).position == Position(1, 1)
 
 
@@ -92,7 +92,7 @@ def test_spike_moveup():
     map, manager = loadMap("test_spike.json")
 
     # When
-    manager.move_all_players(Direction.UP)
+    manager.execute_turn(Direction.UP)
 
     # Then
     p = _find_one_player(map)
@@ -108,7 +108,7 @@ def test_spike_moveup_directhit():
 
 
     # When
-    manager.move_all_players(Direction.UP)
+    manager.execute_turn(Direction.UP)
     p = _find_one_player(map)
 
     # Then
@@ -123,7 +123,7 @@ def test_spike_movedown():
     map.move(pos_from=Position(0, 5), pos_to=Position(0, 1), what=p)
 
     # When
-    manager.move_all_players(Direction.DOWN)
+    manager.execute_turn(Direction.DOWN)
 
     # Then
     p = _find_one_player(map)
@@ -136,21 +136,21 @@ def test_melting_ice():
     map, manager = loadMap("test_melting_ice.json")
 
     # When-Then
-    manager.move_all_players(Direction.DOWN)
+    manager.execute_turn(Direction.DOWN)
     p = _find_one_player(map)
     assert p.position == Position(0, 4)
     assert p.is_alive
 
     # When-Then
-    manager.move_all_players(Direction.UP)
-    manager.move_all_players(Direction.DOWN)
+    manager.execute_turn(Direction.UP)
+    manager.execute_turn(Direction.DOWN)
     p = _find_one_player(map)
     assert p.position == Position(0, 4)
     assert p.is_alive
 
     # When-Then
-    manager.move_all_players(Direction.UP)
-    manager.move_all_players(Direction.DOWN)
+    manager.execute_turn(Direction.UP)
+    manager.execute_turn(Direction.DOWN)
     p = _find_one_player(map)
     # Ice is now broken
     assert p.position == Position(0, 5)
@@ -162,7 +162,7 @@ def test_duckpool():
     map, manager = loadMap("test_duckpool.json")
 
     # When
-    manager.move_all_players(Direction.RIGHT)
+    manager.execute_turn(Direction.RIGHT)
 
     # Then
     assert _find_one_player(map) is None
@@ -176,7 +176,7 @@ def test_boulder():
     map, manager = loadMap("test_boulder.json")
 
     # When
-    manager.move_all_players(Direction.RIGHT)
+    manager.execute_turn(Direction.RIGHT)
 
     # Then
     player: Player = map.block(Position(3, 0)).top()

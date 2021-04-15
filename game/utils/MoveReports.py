@@ -4,7 +4,6 @@ from typing import Optional
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from game.blocks.block import AbstractBlock
     from game.utils.position import Position
 
 
@@ -29,9 +28,3 @@ class MovableMoveReport(MoveReport):
 @dataclass
 class PlayerMoveReport(MovableMoveReport):
     died: bool = False
-
-
-@dataclass
-class MoveResult:
-    subject: 'AbstractBlock'
-    predicate: MoveReport

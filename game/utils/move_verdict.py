@@ -17,4 +17,4 @@ class MoveVerdictEnum(Enum):
 @dataclass
 class MoveVerdict:
     verdict: MoveVerdictEnum
-    side_effects: List[MoveReport] = field(default_factory=list)
+    reports: List[MoveReport] = field(default_factory=list)

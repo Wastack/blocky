@@ -1,9 +1,10 @@
 import random
-from typing import Iterable
+from typing import Iterable, List
 
 from game.blocks.block import AbstractBlock
 from game.blocks.impl.player import Player
 from game.gamemap import GameMap
+from game.utils.MoveReports import MoveReport, PlayerMoveReport
 from game.utils.direction import Direction
 from game.utils.move_verdict import MoveVerdictEnum
 
@@ -36,19 +37,23 @@ class PlayerManager:
         raise NotImplementedError()
 
     @staticmethod
-    def move_all_players_one_step(direction: Direction, players_to_move: Iterable[Player]) -> bool:
+    def move_all_players_one_step(direction: Direction, players_to_move: Iterable[Player]) -> List[MoveReport]:
         """
+        This method executes one *step*.
         :param direction: Direction to which players move
         :param players_to_move: a collection of players that should be moved
-        :return: True if there is a change and so the turn is not over. False otherwise.
+        :return: Reports which were executed during this *step*
         """
 
         players = [p for p in players_to_move if p.is_alive and p.is_active]
         for p in players:
             p.set_active()
 
-        state_changed_overall = False
+        reports: List[MoveReport] = []
 
+
+        # Collect players that are unable to move *temporarly*, and move them
+        # in the next loop.
         state_changed_in_loop = True
         while state_changed_in_loop:
             state_changed_in_loop = False
@@ -57,25 +62,34 @@ class PlayerManager:
                 result = p.move(direction)
                 if result.verdict == MoveVerdictEnum.DELAYED:
                     delayed.append(p)  # Moving postponed
-                elif result.verdict == MoveVerdictEnum.MOVE:
-                    state_changed_overall = True
+                else:
+                    reports += result.reports
+
+                if result.verdict == MoveVerdictEnum.MOVE:
                     state_changed_in_loop = True
 
             # Next loop with delayed players
             players = delayed
 
-        # TODO also return movement infos
-        return state_changed_overall
+        return reports
 
-    def move_all_players(self, direction: Direction) -> None:
+    def execute_turn(self, direction: Direction) -> List[List[MoveReport]]:
         """
         Moves all players until they cannot move any longer.
+        :param direction: Direction the players take
+        """
+        return list(self.execute_turn_yield_steps(direction))
+
+    def execute_turn_yield_steps(self, direction: Direction) -> Iterable:
+        """
+        Executes one *turn*. Thus, players move until they cannot move any longer.
+        Each *step* during execution is yielded.
         :param direction: Direction the players take
         """
 
         players = self._new_turn()
 
-        state_changed = True
-        while state_changed:
-            state_changed = self.move_all_players_one_step(direction, players)
-            # TODO yield movement info
+        reports = [None]  # None is hack for having a do while
+        while len(reports) > 0:
+            reports = self.move_all_players_one_step(direction, players)
+            yield reports

@@ -45,7 +45,7 @@ class MeltingIceBlock(RockBlock):
         try:
             if intruder.momentum > 0:
                 self._life -= 1
-                rock_block_verdict.side_effects.append(
+                rock_block_verdict.reports.append(
                     MeltingIceReport(life_was=self._life+1, life_now=self._life))
         except AttributeError:
             # only melt for 'player like' objects

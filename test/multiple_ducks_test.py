@@ -15,7 +15,7 @@ def test_two_ducks_move_in_row():
     map, manager = loadMap("test_multi_ducks.json")
 
     # When
-    manager.move_all_players(Direction.RIGHT)
+    manager.execute_turn(Direction.RIGHT)
 
     # Then
     p1: 'Player' = map.block(Position(4, 0)).top()
@@ -24,7 +24,7 @@ def test_two_ducks_move_in_row():
     assert p2.is_alive
 
     # When
-    manager.move_all_players(Direction.LEFT)
+    manager.execute_turn(Direction.LEFT)
 
     # Then
     p1: 'Player' = map.block(Position(1, 0)).top()
@@ -38,7 +38,7 @@ def test_two_ducks_against_melting_ice():
     map, manager = loadMap("test_multi_ducks_with_ice.json")
 
     # When
-    manager.move_all_players(Direction.RIGHT)
+    manager.execute_turn(Direction.RIGHT)
 
     # Then
     p1: 'Player'= map.block(Position(4, 0)).top()
@@ -51,7 +51,7 @@ def test_duck_boulder_duck():
     map, manager = loadMap("test_duck_boulder_duck.json")
 
     # When
-    manager.move_all_players(Direction.RIGHT)
+    manager.execute_turn(Direction.RIGHT)
 
     # Then
     p1: 'Player'= map.block(Position(3, 0)).top()

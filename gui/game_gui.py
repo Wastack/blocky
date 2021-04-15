@@ -31,7 +31,7 @@ class GameGUI:
     def _move_player(self, direction: Direction, *args):
         logging.info(f"Move event received. Direction: {direction}")
         player_manager = PlayerManager(self._map_view.game_map)
-        player_manager.move_all_players(direction)
+        player_manager.execute_turn(direction)
         self._map_view.draw()
 
     def unregister_game_events(self):
