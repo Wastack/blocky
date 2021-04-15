@@ -3,7 +3,7 @@ from typing import Optional
 
 from game.blocks.walls.wall import WallContainer
 from game.move_info import MoveInfo
-from game.utils.move_verdict import MoveVerdict
+from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 
 
 class AbstractBlock(ABC):
@@ -15,7 +15,7 @@ class AbstractBlock(ABC):
         """
         :return: Whether intruder can step on block
         """
-        return MoveVerdict.NO_VERDICT
+        return MoveVerdict(verdict=MoveVerdictEnum.NO_VERDICT)
 
     @abstractmethod
     def after_step(self, intruder: 'AbstractBlock', move_info: MoveInfo):

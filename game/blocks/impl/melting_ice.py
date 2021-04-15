@@ -4,7 +4,8 @@ from game.blocks.block import AbstractBlock
 from game.blocks.impl.rock import RockBlock
 from game.blocks.walls.wall import WallContainer
 from game.move_info import MoveInfo
-from game.utils.move_verdict import MoveVerdict
+from game.utils.MoveReports import MeltingIceReport
+from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 
 
 class MeltingIceBlock(RockBlock):
@@ -35,7 +36,7 @@ class MeltingIceBlock(RockBlock):
 
     def before_step(self, intruder: AbstractBlock, i: MoveInfo) -> MoveVerdict:
         if self._life <= 0:
-            return MoveVerdict.MOVE
+            return MoveVerdict(verdict=MoveVerdictEnum.MOVE)
 
         rock_block_verdict = super(MeltingIceBlock, self).before_step(intruder, i)
 
@@ -44,9 +45,10 @@ class MeltingIceBlock(RockBlock):
         try:
             if intruder.momentum > 0:
                 self._life -= 1
+                rock_block_verdict.side_effects.append(
+                    MeltingIceReport(life_was=self._life+1, life_now=self._life))
         except AttributeError:
             # only melt for 'player like' objects
-            return rock_block_verdict
-
+            pass
 
         return rock_block_verdict

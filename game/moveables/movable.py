@@ -3,7 +3,7 @@ import logging
 from game.blocks.block import AbstractBlock
 from game.move_info import MoveInfo
 from game.utils.direction import Direction
-from game.utils.move_verdict import MoveVerdict
+from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 from game.utils.position import Position
 
 from typing import TYPE_CHECKING
@@ -41,7 +41,9 @@ class Movable(AbstractBlock):
         if self._game_map is None:
             raise ValueError("Movable object is not initialized")
         elif self._position is None:
-            return MoveVerdict.INACTIVE  # might be captured
+            # might be captured
+            logging.warning("Movable tried to move without position set")
+            return MoveVerdict(verdict=MoveVerdictEnum.INACTIVE)
 
         t = self._game_map.block(self._position).top()
         if type(t) != type(self):
@@ -52,22 +54,22 @@ class Movable(AbstractBlock):
         move_info = MoveInfo(direction=d)
         new_pos = dir_func_map.get(d)(self._position)
         cell_to_interact = self._game_map.block(new_pos)
-        verdict = cell_to_interact.before_step(self, move_info)
+        result = cell_to_interact.before_step(self, move_info)
         cell_to_interact.after_step(self, move_info)
 
-        if verdict == MoveVerdict.MOVE:
+        if result.verdict == MoveVerdictEnum.MOVE:
             #logging.debug(f"Moving from {self._position} to {new_pos}")
             self._game_map.move(self._position, new_pos, self)
             self._position = new_pos
-        elif verdict == MoveVerdict.CAPTURED:
+        elif result.verdict == MoveVerdictEnum.CAPTURED:
             # Movable is captured by something, remove from map
             self._game_map.block(self._position).pop()
             self._position = None
 
-        return verdict
+        return result
 
     def before_step(self, intruder: 'AbstractBlock', move_info: MoveInfo) -> MoveVerdict:
-        return MoveVerdict.NO_MOVE
+        return MoveVerdict(verdict=MoveVerdictEnum.NO_MOVE)
 
     def after_step(self, intruder: 'AbstractBlock', move_info: MoveInfo):
         return

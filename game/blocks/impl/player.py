@@ -3,7 +3,7 @@ import logging
 from game.move_info import MoveInfo
 from game.moveables.movable import Movable
 from game.utils.direction import Direction
-from game.utils.move_verdict import MoveVerdict
+from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -53,7 +53,7 @@ class Player(Movable):
 
         # When colliding with another player, that player should not stop,
         # because it might happen, that they move "simultaneously"
-        return MoveVerdict.DELAYED
+        return MoveVerdict(verdict=MoveVerdictEnum.DELAYED)
 
     @property
     def facing(self) -> Direction:
@@ -61,15 +61,15 @@ class Player(Movable):
 
     def move(self, d: Direction) -> MoveVerdict:
         if self._inactive:
-            return MoveVerdict.INACTIVE
+            return MoveVerdict(verdict=MoveVerdictEnum.INACTIVE)
 
         verdict = super(Player, self).move(d)
 
-        if verdict == MoveVerdict.NO_MOVE or verdict == MoveVerdict.CAPTURED:
+        if verdict.verdict == MoveVerdictEnum.NO_MOVE or verdict.verdict == MoveVerdictEnum.CAPTURED:
             self._inactive = True
-        elif verdict == MoveVerdict.NO_VERDICT:
-            raise RuntimeError("Inconclusive verfict when trying to move")
-        elif verdict == MoveVerdict.MOVE:
+        elif verdict.verdict == MoveVerdictEnum.NO_VERDICT:
+            raise RuntimeError("Inconclusive verdict when trying to move")
+        elif verdict.verdict == MoveVerdictEnum.MOVE:
             self._momentum += 1
 
         self.set_facing(d)

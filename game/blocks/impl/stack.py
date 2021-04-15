@@ -4,7 +4,7 @@ from game.blocks.block import AbstractBlock
 from game.blocks.impl.empty_block import EmptyBlock
 from game.blocks.impl.player import Player
 from game.move_info import MoveInfo
-from game.utils.move_verdict import MoveVerdict
+from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 
 
 class GameStack(AbstractBlock):
@@ -40,8 +40,8 @@ class GameStack(AbstractBlock):
         """
         :return: Whether intruder can step on block
         """
-        if self._data == []:
-            return MoveVerdict.MOVE
+        if not self._data:
+            return MoveVerdict(MoveVerdictEnum.MOVE)
         top_verdict = self.top().before_step(intruder, i)
         return top_verdict
 

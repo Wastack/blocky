@@ -1,6 +1,6 @@
 from game.blocks.block import AbstractBlock
 from game.move_info import MoveInfo
-from game.utils.move_verdict import MoveVerdict
+from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 
 
 class EmptyBlock(AbstractBlock):
@@ -9,7 +9,7 @@ class EmptyBlock(AbstractBlock):
         """
         :return: Whether intruder can step on block
         """
-        return MoveVerdict.MOVE
+        return MoveVerdict(verdict=MoveVerdictEnum.MOVE)
 
     def after_step(self, intruder: AbstractBlock, _i: MoveInfo):
         pass  # Empty block has no effect whatsoever

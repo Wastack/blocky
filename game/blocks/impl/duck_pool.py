@@ -6,7 +6,7 @@ from game.blocks.impl.rock import RockBlock
 from game.blocks.walls.wall import WallContainer
 from game.move_info import MoveInfo
 from game.moveables.movable import Movable
-from game.utils.move_verdict import MoveVerdict
+from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 
 
 class DuckPoolBlock(RockBlock):
@@ -46,14 +46,14 @@ class DuckPoolBlock(RockBlock):
 
     def before_step(self, intruder: AbstractBlock, i: MoveInfo) -> MoveVerdict:
         walls_verdict = self._walls.before_step(intruder, i)
-        if walls_verdict != MoveVerdict.NO_VERDICT:
+        if walls_verdict.verdict != MoveVerdictEnum.NO_VERDICT:
             return walls_verdict
 
         if self.free_space > 0 or self._capacity == -1:
             if isinstance(intruder, Player):
                 # Accept block
                 self._blocks_in_pool.append(intruder)
-                return MoveVerdict.CAPTURED
+                return MoveVerdict(verdict=MoveVerdictEnum.CAPTURED)
 
         # If full, behaves like a rock
         return super(DuckPoolBlock, self).before_step(intruder, i)

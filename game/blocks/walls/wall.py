@@ -3,7 +3,7 @@ from typing import Optional
 
 from game.move_info import MoveInfo
 from game.utils.direction import Direction
-from game.utils.move_verdict import MoveVerdict
+from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Wall(ABC):
     @abstractmethod
     def before_step(self, intruder: 'AbstractBlock') -> MoveVerdict:
-        return MoveVerdict.NO_VERDICT
+        return MoveVerdict(MoveVerdictEnum.NO_VERDICT)
 
     @abstractmethod
     def after_step(self, intruder: 'AbstractBlock') -> None:
@@ -40,7 +40,7 @@ class WallContainer():
         wall_side = Direction.opposite(i.direction)
         wall = self._walls.get(wall_side)
         if wall is None:
-            return MoveVerdict.NO_VERDICT
+            return MoveVerdict(verdict=MoveVerdictEnum.NO_VERDICT)
         return self._walls[wall_side].before_step(intruder)
 
     def after_step(self, intruder: 'AbstractBlock', i: MoveInfo) -> None:
