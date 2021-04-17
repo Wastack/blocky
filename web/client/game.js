@@ -77,7 +77,9 @@ function renderMap(map) {
                 cell_text = "A";
                 break;
             case "MeltingIce":
-                cell_text = "I";
+                if(block.life > 0) {
+                    cell_text = "I" + block.life;
+                }
                 break;
             case "DuckPool":
                 cell_text = "P";
@@ -88,6 +90,9 @@ function renderMap(map) {
             case "RollingBlock":
                 cell_text = "R";
                 break;
+        }
+        if(cell_text === "?") {
+            return;
         }
         ctx.fillText(cell_text, pos.x*block_size + half_block_size, pos.y*block_size + half_block_size);
     });
