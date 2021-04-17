@@ -51,8 +51,8 @@ class Movable(AbstractBlock):
             raise ValueError(
                 f"Cannot find movable object of type {type(self)} in position {self._position} Unexpected type: {type(t)}")
 
-        move_info = MoveInfo(direction=d, target=self._position)
         new_pos = dir_func_map.get(d)(self._position)
+        move_info = MoveInfo(direction=d, target=new_pos)
         cell_to_interact = self._game_map.block(new_pos)
         result: MoveVerdict = cell_to_interact.before_step(self, move_info)
         cell_to_interact.after_step(self, move_info)
