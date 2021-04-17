@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>WebSocket demo</title>
+    </head>
+    <body>
+        Hello!
+        <script>
+            function onGameMapReceived(data) {
+                console.log(data);
+                // TODO render map
+                // TODO register user input
+            }
+
+            function onPhaseTwo(data) {
+                // TODO
+            }
+
+            var phase = 1
+            var ws = new WebSocket("ws://127.0.0.1:8765/"),
+                messages = document.createElement('ul');
+
+            ws.onmessage = function (event) {
+                console.log("received phase " + phase)
+                var message = event.data;
+                switch(phase) {
+                    case 1:
+                        onGameMapReceived(message);
+                        break;
+                    case 2:
+                        onPhaseTwo(message);
+                        break;
+                }
+            };
+
+            ws.onopen = function(event) {
+                ws.send("Tamás");
+            }
+            document.body.appendChild(messages);
+        </script>
+    </body>
+</html>
