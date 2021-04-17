@@ -10,6 +10,7 @@ import websockets
 
 from game.gamemap import GameMap
 from game.json_import.map_schema import MapSchema
+from game.json_import.reports_schema import TurnSchema
 from game.player_manager import PlayerManager
 from game.utils.direction import Direction
 
@@ -48,9 +49,15 @@ class WebGame:
         direction = Direction[message.upper()]
         logging.debug(f"Direction received: {direction}")
 
-        self.__player_manager.execute_turn(direction)
+        steps = self.__player_manager.execute_turn(direction)
 
-        await self.__send_map(websocket)
+        turn_result = {
+            "steps" : steps,
+            "map_result" : self.__map_model,
+        }
+        schema = TurnSchema()
+        msg = schema.dumps(turn_result)
+        await websocket.send(msg)
 
     async def hello(self, websocket, _path: str):
         logging.info("Received connection")

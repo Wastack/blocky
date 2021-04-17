@@ -10,6 +10,11 @@ canvas.height = window.innerHeight || document.documentElement.clientHeight || d
 var phase = 1
 var ws = new WebSocket("ws://127.0.0.1:8765/"),
     messages = document.createElement('ul');
+var current_map = 0
+
+const block_size = 40;
+const half_block_size = Math.floor(block_size/2);
+
 
 function keyDownHandler(e) {
     var message = "?";
@@ -35,7 +40,27 @@ function keyDownHandler(e) {
     ws.send(message);
 }
 
+function cellTextFromBlock(block) {
+        switch(block.type) {
+            case "Anna":
+                return "A";
+            case "MeltingIce":
+                if(block.life > 0) {
+                    return "I" + block.life;
+                }
+                break;
+            case "DuckPool":
+                return "P";
+            case "Stone":
+                return "S";
+            case "RollingBlock":
+                return "R";
+        }
+        return "?"
+}
+
 function renderMap(map) {
+    current_map = {};
     const ctx = canvas.getContext("2d");
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
@@ -44,8 +69,6 @@ function renderMap(map) {
     ctx.textBaseline = 'middle';
 
     // border of rectangles
-    const block_size = 40;
-    const half_block_size = Math.floor(block_size/2);
     const width = map.map_size.width;
     const height = map.map_size.height;
 
@@ -71,29 +94,11 @@ function renderMap(map) {
         const blocks = cell.blocks;
         const block = blocks[blocks.length-1];
 
-        var cell_text = "?";
-        switch(block.type) {
-            case "Anna":
-                cell_text = "A";
-                break;
-            case "MeltingIce":
-                if(block.life > 0) {
-                    cell_text = "I" + block.life;
-                }
-                break;
-            case "DuckPool":
-                cell_text = "P";
-                break;
-            case "Stone":
-                cell_text = "S";
-                break;
-            case "RollingBlock":
-                cell_text = "R";
-                break;
-        }
+        var cell_text = cellTextFromBlock(block);
         if(cell_text === "?") {
             return;
         }
+        current_map[pos.x + ":" + pos.y] = block;
         ctx.fillText(cell_text, pos.x*block_size + half_block_size, pos.y*block_size + half_block_size);
     });
 }
@@ -105,10 +110,52 @@ function onGameMapReceived(map_data) {
 }
 
 function onGameReports(data) {
+    const data_obj = JSON.parse(data);
     const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const map = JSON.parse(data);
-    renderMap(map);
+    ctx.font = "30px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = 'middle';
+
+    const steps = data_obj.steps;
+    steps.forEach(function(step) {
+        const reports = step.reports;
+        reports.forEach(function(report) {
+            const pos = report.position;
+            const target = report.target;
+
+            const block = current_map[pos.x + ":" + pos.y];
+            if(!block) {
+                console.log("OHHH noooo WTF.");
+                return;
+            }
+
+            switch(report.type) {
+                case "moving":
+                    delete current_map[pos.x + ":" + pos.y];
+                    ctx.clearRect(pos.x*block_size, pos.y*block_size, block_size, block_size);
+                    if(target !== null) {
+                        current_map[target.x + ":" + target.y] = block;
+                        ctx.fillText(cellTextFromBlock(block),
+                                        target.x*block_size + half_block_size,
+                                        target.y*block_size + half_block_size);
+                    }
+                    break;
+                case "melting":
+                    ctx.clearRect(pos.x*block_size, pos.y*block_size, block_size, block_size);
+                    block.life = report.life_now;
+                    console.log(block.life);
+                    if(block.life > 0) {
+                        ctx.fillText(cellTextFromBlock(block),
+                                        pos.x*block_size + half_block_size,
+                                        pos.y*block_size + half_block_size);
+                    }
+                    break;
+                case "player":
+                    break;
+            }
+            // TODO apply report
+        });
+    });
 }
 
 ws.onmessage = function (event) {
