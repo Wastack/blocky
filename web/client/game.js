@@ -109,6 +109,13 @@ function onGameMapReceived(map_data) {
     document.addEventListener("keydown", keyDownHandler, true);
 }
 
+function clearCell(position, ctx) {
+    ctx.clearRect(position.x*block_size + 2,
+                  position.y*block_size + 2,
+                  block_size - 4,
+                  block_size - 4);
+}
+
 function onGameReports(data) {
     const data_obj = JSON.parse(data);
     const ctx = canvas.getContext("2d");
@@ -132,7 +139,7 @@ function onGameReports(data) {
             switch(report.type) {
                 case "moving":
                     delete current_map[pos.x + ":" + pos.y];
-                    ctx.clearRect(pos.x*block_size, pos.y*block_size, block_size, block_size);
+                    clearCell(pos, ctx);
                     if(target !== null) {
                         current_map[target.x + ":" + target.y] = block;
                         ctx.fillText(cellTextFromBlock(block),
@@ -141,7 +148,7 @@ function onGameReports(data) {
                     }
                     break;
                 case "melting":
-                    ctx.clearRect(pos.x*block_size, pos.y*block_size, block_size, block_size);
+                    clearCell(pos, ctx);
                     block.life = report.life_now;
                     console.log(block.life);
                     if(block.life > 0) {
