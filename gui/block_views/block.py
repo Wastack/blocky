@@ -17,21 +17,29 @@ class BlockView(ABC):
     def __init__(self, canvas: tkinter.Canvas, block_fill_color="wheat1"):
         self._canvas = canvas
         self._rect: Optional[int] = None
-        self._img: Optional[tkinter.Label] = None
+        self._img: Optional[int] = None
         self._block_color = block_fill_color
         self._block = self._set_default_block()
+
+        self.__tag = str(id(self))
 
         self._png_file_name = ""
         self._image_facing = Direction.RIGHT
 
     def _create_block(self, pos: Position) -> Any:
         rect = rect_from_pos(pos)
-        return self._canvas.create_rectangle(*rect, fill=self._block_color)
+        return self._canvas.create_rectangle(*rect, fill=self._block_color, tags=self.__tag)
 
     def _create_text(self, pos: Position, text: str) -> int:
         times = Font(family="Times", size=str(BLOCK_SIZE // 2), weight="bold")
-        text_id = self._canvas.create_text(pos.x * BLOCK_SIZE + BLOCK_SIZE // 2, pos.y * BLOCK_SIZE + BLOCK_SIZE // 2 + 2, text=text, fill="DeepSkyBlue4", font=times)
+        text_id = self._canvas.create_text(pos.x * BLOCK_SIZE + BLOCK_SIZE // 2, pos.y * BLOCK_SIZE + BLOCK_SIZE // 2 + 2, text=text, fill="DeepSkyBlue4", font=times, tags=self.__tag)
         return text_id
+
+    def move(self, old_pos: Position, new_pos: Position):
+        print(f"Move from {old_pos} to {new_pos}")
+        dx, dy = new_pos.x - old_pos.x, new_pos.y - old_pos.y
+        if self._img is not None:
+            self._canvas.move(self._img, dx*BLOCK_SIZE, dy*BLOCK_SIZE)
 
     def draw(self, pos: Position) -> Any:
         if self._rect is not None:
@@ -40,7 +48,7 @@ class BlockView(ABC):
         if self._png_file_name != "":
             img_factory = ImageFactory()
             self.photo = img_factory.get_image(self._png_file_name, rotate=self._image_facing)
-            self._img = self._canvas.create_image(pos.x*BLOCK_SIZE + BLOCK_SIZE // 2, pos.y*BLOCK_SIZE + BLOCK_SIZE // 2, image=self.photo)
+            self._img = self._canvas.create_image(pos.x*BLOCK_SIZE + BLOCK_SIZE // 2, pos.y*BLOCK_SIZE + BLOCK_SIZE // 2, image=self.photo, tags=self.__tag)
         self._rect = self._create_block(pos)
         self._canvas.tag_lower(self._rect)
         return self._rect

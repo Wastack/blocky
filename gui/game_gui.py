@@ -1,6 +1,6 @@
 import functools
 import logging
-from typing import Callable, Any
+from typing import Callable
 
 from game.gamemap import GameMap
 from game.player_manager import PlayerManager
@@ -10,6 +10,7 @@ from gui.views.map_view import MapView
 
 class GameGUI:
     def __init__(self, canvas, game_map: GameMap):
+
         self._canvas = canvas
         self._map_view = MapView(game_map=game_map, canvas=canvas)
         self._game_over_callback = None
