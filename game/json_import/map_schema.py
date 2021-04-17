@@ -33,7 +33,7 @@ class SpikeWallSchema(Schema):
 
     @pre_dump
     def _pre_dump(self, _data, **kwargs):
-        logging.debug("Killer wall is dumped")
+        pass
 
 
 class AbstractWallSchema(OneOfSchema):
@@ -200,7 +200,6 @@ class MapSchema(Schema):
 
     @pre_dump
     def _pre_dump(self, map_obj: GameMap, **kwargs) -> Dict[str, Any]:
-        logging.debug(map_obj)
         cells_dicts = []
         for pos, cell in map_obj.blocks().items():
             if isinstance(cell.top(), EmptyBlock):
