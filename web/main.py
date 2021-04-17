@@ -3,62 +3,75 @@ import json
 import logging
 import os
 import pathlib
+from typing import Optional
 
 import aiofiles as aiofiles
 import websockets
 
 from game.gamemap import GameMap
 from game.json_import.map_schema import MapSchema
+from game.player_manager import PlayerManager
 from game.utils.direction import Direction
 
 FORMAT = "[%(levelname)5s - %(filename)s:%(lineno)s::%(funcName)s] %(message)s"
 logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 logging.getLogger("PIL").setLevel(logging.WARNING)
 
+class WebGame:
+    def __init__(self, host: str, port: int):
+        self.__host = host
+        self.__port = port
+        self.__map_model: Optional[GameMap] = None
+        self.__player_manager: Optional[PlayerManager] = None
 
-async def open_map(file_name: str) -> GameMap:
-    # Load a test data for debugging
-    async with aiofiles.open(
-            os.path.join(pathlib.Path(__file__).parent.parent, "example_maps",
-                         file_name)) as fp:
-        data = await fp.read()
-        json_data = json.loads(data)
+    async def __send_map(self, websocket):
+        schema = MapSchema()
+        back_to_json = schema.dumps(self.__map_model)
+        await websocket.send(back_to_json)
 
-    schema = MapSchema()
-    map_model = schema.load(json_data)
+    @staticmethod
+    async def open_map(file_name: str) -> GameMap:
+        # Load a test data for debugging
+        async with aiofiles.open(
+                os.path.join(pathlib.Path(__file__).parent.parent, "example_maps",
+                             file_name)) as fp:
+            data = await fp.read()
+            json_data = json.loads(data)
 
-    return map_model
+        schema = MapSchema()
+        map_model = schema.load(json_data)
 
+        return map_model
 
-async def receive_move(websocket):
-    message: str = await websocket.recv()
-    direction = Direction[message.upper()]
-    logging.debug(f"Direction received: {direction}")
+    async def receive_move(self, websocket):
+        message: str = await websocket.recv()
+        direction = Direction[message.upper()]
+        logging.debug(f"Direction received: {direction}")
 
+        self.__player_manager.execute_turn(direction)
 
-async def hello(websocket, _path: str):
-    logging.info("Received connection")
+        await self.__send_map(websocket)
 
-    # Parse map
-    map_model = await open_map("boulder.json")
+    async def hello(self, websocket, _path: str):
+        logging.info("Received connection")
 
-    # Send map
-    schema = MapSchema()
-    back_to_json = schema.dumps(map_model)
-    await websocket.send(back_to_json)
+        # Parse map
+        self.__map_model = await self.open_map("boulder.json")
+        self.__player_manager = PlayerManager(self.__map_model)
 
-    # Wait for user input
-    while True:
-        await receive_move(websocket)
+        # Send map
+        await self.__send_map(websocket)
 
+        # Wait for user input
+        while True:
+            await self.receive_move(websocket)
 
-def main():
-    HOST, PORT = "localhost", 8765
-    start_server = websockets.serve(hello, HOST, PORT)
-    logging.info(f"Serving at {HOST}:{PORT}")
-    asyncio.get_event_loop().run_until_complete(start_server)
-    asyncio.get_event_loop().run_forever()
+    def main(self):
+        start_server = websockets.serve(self.hello, self.__host, self.__port)
+        asyncio.get_event_loop().run_until_complete(start_server)
+        asyncio.get_event_loop().run_forever()
 
 
 if __name__ == "__main__":
-    main()
+    game = WebGame(host="localhost", port=8765)
+    game.main()

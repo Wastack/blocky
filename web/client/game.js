@@ -100,7 +100,10 @@ function onGameMapReceived(map_data) {
 }
 
 function onGameReports(data) {
-    // TODO acknowledge reports/changes
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const map = JSON.parse(data);
+    renderMap(map);
 }
 
 ws.onmessage = function (event) {
@@ -109,6 +112,7 @@ ws.onmessage = function (event) {
     switch(phase) {
         case 1:
             onGameMapReceived(message);
+            phase++;
             break;
         case 2:
             onGameReports(message);
