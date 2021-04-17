@@ -3,10 +3,22 @@
     <head>
         <meta charset="UTF-8">
         <title>Blocky</title>
+        <style>
+            html, body {
+                overflow: hidden;
+            }
+
+            body {
+                background-color:lightgrey;
+            }
+        </style>
+
     </head>
     <body>
-        Hello!
         <script src="game.js" defer></script>
         <div id="message"/>
+        <canvas id="gameCanvas" style="border:1px solid #000000;">
+            Your browser does not support the HTML canvas tag.
+        </canvas>
     </body>
 </html>
