@@ -59,6 +59,39 @@ function cellTextFromBlock(block) {
         return "?"
 }
 
+function drawWalls(block, pos, ctx) {
+    if(!block.walls) {
+        return;
+    }
+
+    const pos_x_px = pos.x*block_size;
+    const pos_y_px = pos.y*block_size;
+
+    ctx.strokeStyle = "red";
+    ctx.beginPath();
+    if(block.walls.down) {
+        ctx.moveTo(pos_x_px + 4, pos_y_px+block_size - 4);
+        ctx.lineTo(pos_x_px+block_size - 4, pos_y_px+block_size - 4);
+        ctx.stroke();
+    }
+    if (block.walls.left) {
+        ctx.moveTo(pos_x_px + 4, pos_y_px + 4);
+        ctx.lineTo(pos_x_px + 4, pos_y_px+block_size - 4);
+        ctx.stroke();
+    }
+    if (block.walls.up) {
+        ctx.moveTo(pos_x_px + 4, pos_y_px + 4);
+        ctx.lineTo(pos_x_px+block_size - 4, pos_y_px + 4);
+        ctx.stroke();
+    }
+    if (block.walls.right) {
+        ctx.moveTo(pos_x_px+block_size - 4, pos_y_px + 4);
+        ctx.lineTo(pos_x_px+block_size - 4, pos_y_px+block_size - 4);
+        ctx.stroke();
+    }
+    ctx.closePath();
+}
+
 function renderMap(map) {
     current_map = {};
     const ctx = canvas.getContext("2d");
@@ -75,6 +108,7 @@ function renderMap(map) {
     const width_px = width*block_size;
     const height_px = height*block_size;
 
+    ctx.beginPath();
     for (let i = 0; i <= width; i++) {
         const x = i*block_size;
         ctx.moveTo(x, 0);
@@ -87,19 +121,26 @@ function renderMap(map) {
         ctx.lineTo(width_px, y);
         ctx.stroke();
     }
+    ctx.closePath();
 
+    // blocks
     const cells = map.cells;
     cells.forEach(function (cell) {
         const pos = cell.pos;
         const blocks = cell.blocks;
         const block = blocks[blocks.length-1];
 
+        const pos_x_px = pos.x*block_size;
+        const pos_y_px = pos.y*block_size;
+
         var cell_text = cellTextFromBlock(block);
         if(cell_text === "?") {
             return;
         }
         current_map[pos.x + ":" + pos.y] = block;
-        ctx.fillText(cell_text, pos.x*block_size + half_block_size, pos.y*block_size + half_block_size);
+        ctx.fillText(cell_text, pos_x_px + half_block_size, pos_y_px + half_block_size);
+
+        drawWalls(block, pos, ctx);
     });
 }
 
@@ -155,6 +196,7 @@ function onGameReports(data) {
                         ctx.fillText(cellTextFromBlock(block),
                                         pos.x*block_size + half_block_size,
                                         pos.y*block_size + half_block_size);
+                        drawWalls(block, pos, ctx);
                     }
                     break;
                 case "player":
