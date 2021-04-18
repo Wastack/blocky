@@ -193,6 +193,13 @@ function putToCell(block, position, ctx) {
                      position.y*block_size + half_block_size);
     }
 
+    // draw Text to signal life of ice block
+    if(block.type == "MeltingIce") {
+        ctx.fillText(cellTextFromBlock(block),
+                     position.x*block_size + half_block_size,
+                     position.y*block_size + half_block_size);
+    }
+
     drawWalls(block, position, ctx);
 }
 
