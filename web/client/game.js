@@ -2,6 +2,7 @@
 // constants
 
 const wall_margin = 8;
+const animation_speed = 20;
 
 // Init canvas
 canvas = document.getElementById("gameCanvas");
@@ -41,6 +42,9 @@ var half_block_size = Math.floor(block_size/2);
 
 
 function keyDownHandler(e) {
+    if(currently_animated) {
+        return;
+    }
     var message = "?";
     switch (e.keyCode) {
         case 37:
@@ -88,13 +92,10 @@ function imageFromCellText(cellText) {
     return images[cellText[0]];
 }
 
-function drawWalls(block, pos, ctx) {
+function drawWallsPx(block, pos_x_px, pos_y_px, ctx) {
     if(!block.walls) {
         return;
     }
-
-    const pos_x_px = pos.x*block_size;
-    const pos_y_px = pos.y*block_size;
 
     ctx.strokeStyle = "red";
     ctx.lineWidth = 8;
@@ -120,6 +121,14 @@ function drawWalls(block, pos, ctx) {
         ctx.stroke();
     }
     ctx.closePath();
+
+}
+
+function drawWalls(block, pos, ctx) {
+    const pos_x_px = pos.x*block_size;
+    const pos_y_px = pos.y*block_size;
+
+    drawWallsPx(block, pos_x_px, pos_y_px, ctx);
 }
 
 function renderMap(map) {
@@ -176,46 +185,50 @@ function onGameMapReceived(map_data) {
 }
 
 function clearCell(position, ctx) {
-    ctx.clearRect(position.x*block_size + 2,
-                  position.y*block_size + 2,
+    clearCellPx(position.x*block_size, position.y*block_size, ctx);
+}
+
+function clearCellPx(px_pos_x, px_pos_y, ctx) {
+    ctx.clearRect(px_pos_x + 2,
+                  px_pos_y + 2,
                   block_size - 4,
                   block_size - 4);
 }
 
-function putToCell(block, position, ctx) {
+function putToCellPx(block, px, py, ctx) {
     const cellText = cellTextFromBlock(block);
     const image = imageFromCellText(cellText);
     if(image) {
         if(block.type === "Stone") {
-            ctx.drawImage(image,
-                          position.x*block_size,
-                          position.y*block_size,
-                          block_size,
-                          block_size);
+            ctx.drawImage(image, px, py, block_size, block_size);
         }
         else {
-            ctx.drawImage(image,
-                          position.x*block_size + 2,
-                          position.y*block_size + 2,
-                          block_size - 4,
-                          block_size - 4);
+            ctx.drawImage(image, px + 2, py + 2, block_size - 4, block_size - 4);
         }
     }
     else {
-        ctx.fillText(cellTextFromBlock(block),
-                     position.x*block_size + half_block_size,
-                     position.y*block_size + half_block_size);
+        ctx.fillText(cellTextFromBlock(block), px + half_block_size, py + half_block_size);
     }
 
     // draw Text to signal life of ice block
     if(block.type == "MeltingIce") {
-        ctx.fillText(cellTextFromBlock(block),
-                     position.x*block_size + half_block_size,
-                     position.y*block_size + half_block_size);
+        ctx.fillText(cellTextFromBlock(block), px+ half_block_size, py + half_block_size);
     }
 
-    drawWalls(block, position, ctx);
+    drawWallsPx(block, px, py, ctx);
 }
+
+function putToCell(block, position, ctx) {
+    const px = position.x*block_size;
+    const py = position.y*block_size;
+
+    putToCellPx(block, px, py, ctx);
+}
+
+
+var report_i = 0;
+var step_i = 0;
+var currently_animated = false;
 
 function onGameReports(data) {
     const data_obj = JSON.parse(data);
@@ -225,40 +238,103 @@ function onGameReports(data) {
     ctx.textBaseline = 'middle';
 
     const steps = data_obj.steps;
-    steps.forEach(function(step) {
-        const reports = step.reports;
-        reports.forEach(function(report) {
-            const pos = report.position;
-            const target = report.target;
+    step_i = 0;
+    report_i = 0;
+    let start;
+    let px, py;
 
-            const block = current_map[pos.x + ":" + pos.y];
-            if(!block) {
-                console.log("OHHH noooo WTF.");
-                return;
-            }
+    function update(timestamp) {
+        const reports = steps[step_i].reports;
 
-            switch(report.type) {
-                case "moving":
-                    delete current_map[pos.x + ":" + pos.y];
-                    clearCell(pos, ctx);
-                    if(target !== null) {
+
+        console.log("Animating step " + step_i + ", record: " + report_i);
+        if (report_i >= reports.length) {
+            return;
+        }
+
+        if (start === undefined) {
+                start = timestamp;
+        }
+
+        let ms_passed = timestamp-start;
+        start = timestamp;
+
+        let report = reports[report_i];
+        const pos = report.position;
+        const target = report.target;
+
+        const block = current_map[pos.x + ":" + pos.y];
+        if(!block) {
+            console.log("Ohh nooo. Block not found for step " + step_i + ", record " + report_i);
+            return;
+        }
+
+        switch(report.type) {
+            case "moving":
+                if(target !== null) {
+                    if( px === undefined) {
+                        px = pos.x*block_size;
+                        py = pos.y*block_size;
+                    }
+                    let signum_x = target.x - pos.x;
+                    let signum_y = target.y - pos.y;
+
+                    clearCellPx(px, py, ctx);
+                    px += signum_x*animation_speed;
+                    py += signum_y*animation_speed;
+                    console.log("("+px+","+py+")");
+                    putToCellPx(block, px, py, ctx);
+
+                    console.log("moving");
+                    if((px - target.x*block_size + py-target.y*block_size )*(signum_x+signum_y) > 0) {
+                        // next report
+                        delete current_map[pos.x + ":" + pos.y];
                         current_map[target.x + ":" + target.y] = block;
-                        putToCell(block, target, ctx);
+                        report_i++;
+                        px = undefined;
+                        py = undefined;
+                        console.log("Move done");
                     }
-                    break;
-                case "melting":
+                }
+                else {
+                    // captured
                     clearCell(pos, ctx);
-                    block.life = report.life_now;
-                    if(block.life > 0) {
-                        putToCell(block, pos, ctx);
-                    }
-                    break;
-                case "player":
-                    break;
-            }
-            // TODO apply report
-        });
-    });
+                    delete current_map[pos.x + ":" + pos.y];
+                    report_i++;
+                    console.log("captured");
+                }
+                break;
+            case "melting":
+                clearCell(pos, ctx);
+                block.life = report.life_now;
+                if(block.life > 0) {
+                    putToCell(block, pos, ctx);
+                }
+                report_i++;
+                break;
+            default:
+                report_i++;
+                break;
+        }
+
+        if( report_i >= reports.length) {
+            step_i++;
+            report_i = 0;
+        }
+
+        if(step_i < steps.length) {
+            window.requestAnimationFrame(update);
+        }
+        else {
+            currently_animated = false;
+        }
+    }
+
+    if(steps.length > 0) {
+        console.log("Start animating");
+        currently_animated = true;
+        window.requestAnimationFrame(update);
+    }
 }
 
 ws.onmessage = function (event) {
