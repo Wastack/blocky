@@ -1,4 +1,8 @@
 
+// constants
+
+const wall_margin = 8;
+
 // Init canvas
 canvas = document.getElementById("gameCanvas");
 canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
@@ -93,25 +97,26 @@ function drawWalls(block, pos, ctx) {
     const pos_y_px = pos.y*block_size;
 
     ctx.strokeStyle = "red";
+    ctx.lineWidth = 8;
     ctx.beginPath();
     if(block.walls.down) {
-        ctx.moveTo(pos_x_px + 4, pos_y_px+block_size - 4);
-        ctx.lineTo(pos_x_px+block_size - 4, pos_y_px+block_size - 4);
+        ctx.moveTo(pos_x_px + wall_margin, pos_y_px+block_size - wall_margin);
+        ctx.lineTo(pos_x_px+block_size - wall_margin, pos_y_px+block_size - wall_margin);
         ctx.stroke();
     }
     if (block.walls.left) {
-        ctx.moveTo(pos_x_px + 4, pos_y_px + 4);
-        ctx.lineTo(pos_x_px + 4, pos_y_px+block_size - 4);
+        ctx.moveTo(pos_x_px + wall_margin, pos_y_px + wall_margin);
+        ctx.lineTo(pos_x_px + wall_margin, pos_y_px+block_size - wall_margin);
         ctx.stroke();
     }
     if (block.walls.up) {
-        ctx.moveTo(pos_x_px + 4, pos_y_px + 4);
-        ctx.lineTo(pos_x_px+block_size - 4, pos_y_px + 4);
+        ctx.moveTo(pos_x_px + wall_margin, pos_y_px + wall_margin);
+        ctx.lineTo(pos_x_px+block_size - wall_margin, pos_y_px + wall_margin);
         ctx.stroke();
     }
     if (block.walls.right) {
-        ctx.moveTo(pos_x_px+block_size - 4, pos_y_px + 4);
-        ctx.lineTo(pos_x_px+block_size - 4, pos_y_px+block_size - 4);
+        ctx.moveTo(pos_x_px+block_size - wall_margin, pos_y_px + wall_margin);
+        ctx.lineTo(pos_x_px+block_size - wall_margin, pos_y_px+block_size - wall_margin);
         ctx.stroke();
     }
     ctx.closePath();
@@ -181,11 +186,20 @@ function putToCell(block, position, ctx) {
     const cellText = cellTextFromBlock(block);
     const image = imageFromCellText(cellText);
     if(image) {
-        ctx.drawImage(image,
-                      position.x*block_size + 2,
-                      position.y*block_size + 2,
-                      block_size - 4,
-                      block_size - 4);
+        if(block.type === "Stone") {
+            ctx.drawImage(image,
+                          position.x*block_size,
+                          position.y*block_size,
+                          block_size,
+                          block_size);
+        }
+        else {
+            ctx.drawImage(image,
+                          position.x*block_size + 2,
+                          position.y*block_size + 2,
+                          block_size - 4,
+                          block_size - 4);
+        }
     }
     else {
         ctx.fillText(cellTextFromBlock(block),
