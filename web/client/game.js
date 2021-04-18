@@ -5,7 +5,11 @@ canvas.width = window.innerWidth || document.documentElement.clientWidth || docu
 canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 
 // TODO init images
+images = {}
 
+const duck_img = new Image();
+duck_img.src = 'resources/duck.png';
+images["A"] = duck_img;
 
 var phase = 1
 var ws = new WebSocket("ws://127.0.0.1:8765/"),
@@ -57,6 +61,10 @@ function cellTextFromBlock(block) {
                 return "R";
         }
         return "?"
+}
+
+function imageFromCellText(cellText) {
+    return images[cellText];
 }
 
 function drawWalls(block, pos, ctx) {
@@ -130,17 +138,8 @@ function renderMap(map) {
         const blocks = cell.blocks;
         const block = blocks[blocks.length-1];
 
-        const pos_x_px = pos.x*block_size;
-        const pos_y_px = pos.y*block_size;
-
-        var cell_text = cellTextFromBlock(block);
-        if(cell_text === "?") {
-            return;
-        }
         current_map[pos.x + ":" + pos.y] = block;
-        ctx.fillText(cell_text, pos_x_px + half_block_size, pos_y_px + half_block_size);
-
-        drawWalls(block, pos, ctx);
+        putToCell(block, pos, ctx);
     });
 }
 
@@ -155,6 +154,25 @@ function clearCell(position, ctx) {
                   position.y*block_size + 2,
                   block_size - 4,
                   block_size - 4);
+}
+
+function putToCell(block, position, ctx) {
+    const cellText = cellTextFromBlock(block);
+    const image = imageFromCellText(cellText);
+    if(image) {
+        ctx.drawImage(image,
+                      position.x*block_size,
+                      position.y*block_size,
+                      block_size,
+                      block_size);
+    }
+    else {
+        ctx.fillText(cellTextFromBlock(block),
+                     position.x*block_size + half_block_size,
+                     position.y*block_size + half_block_size);
+    }
+
+    drawWalls(block, position, ctx);
 }
 
 function onGameReports(data) {
@@ -183,20 +201,14 @@ function onGameReports(data) {
                     clearCell(pos, ctx);
                     if(target !== null) {
                         current_map[target.x + ":" + target.y] = block;
-                        ctx.fillText(cellTextFromBlock(block),
-                                        target.x*block_size + half_block_size,
-                                        target.y*block_size + half_block_size);
+                        putToCell(block, target, ctx);
                     }
                     break;
                 case "melting":
                     clearCell(pos, ctx);
                     block.life = report.life_now;
-                    console.log(block.life);
                     if(block.life > 0) {
-                        ctx.fillText(cellTextFromBlock(block),
-                                        pos.x*block_size + half_block_size,
-                                        pos.y*block_size + half_block_size);
-                        drawWalls(block, pos, ctx);
+                        putToCell(block, pos, ctx);
                     }
                     break;
                 case "player":
