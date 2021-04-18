@@ -7,17 +7,33 @@ canvas.height = window.innerHeight || document.documentElement.clientHeight || d
 // TODO init images
 images = {}
 
-const duck_img = new Image();
-duck_img.src = 'resources/duck.png';
-images["A"] = duck_img;
+const boulderImg = new Image();
+boulderImg.src = 'resources/boulder.png';
+images["R"] = boulderImg;
+
+const brickImg = new Image();
+brickImg.src = 'resources/brick.png';
+images["S"] = brickImg;
+
+const duckImg = new Image();
+duckImg.src = 'resources/duck.png';
+images["A"] = duckImg;
+
+const duckPoolImg = new Image();
+duckPoolImg.src = 'resources/duck_pool.png';
+images["P"] = duckPoolImg;
+
+const iceImg = new Image();
+iceImg.src = 'resources/ice.png';
+images["I"] = iceImg;
 
 var phase = 1
 var ws = new WebSocket("ws://127.0.0.1:8765/"),
     messages = document.createElement('ul');
 var current_map = 0
 
-const block_size = 40;
-const half_block_size = Math.floor(block_size/2);
+var block_size = 40;
+var half_block_size = Math.floor(block_size/2);
 
 
 function keyDownHandler(e) {
@@ -64,7 +80,8 @@ function cellTextFromBlock(block) {
 }
 
 function imageFromCellText(cellText) {
-    return images[cellText];
+    // 0 for Ice
+    return images[cellText[0]];
 }
 
 function drawWalls(block, pos, ctx) {
@@ -109,9 +126,13 @@ function renderMap(map) {
     ctx.textAlign = "center";
     ctx.textBaseline = 'middle';
 
+
     // border of rectangles
     const width = map.map_size.width;
     const height = map.map_size.height;
+
+    block_size = Math.floor(canvas.height/height);
+    half_block_size = Math.floor(block_size/2);
 
     const width_px = width*block_size;
     const height_px = height*block_size;
@@ -161,10 +182,10 @@ function putToCell(block, position, ctx) {
     const image = imageFromCellText(cellText);
     if(image) {
         ctx.drawImage(image,
-                      position.x*block_size,
-                      position.y*block_size,
-                      block_size,
-                      block_size);
+                      position.x*block_size + 2,
+                      position.y*block_size + 2,
+                      block_size - 4,
+                      block_size - 4);
     }
     else {
         ctx.fillText(cellTextFromBlock(block),
