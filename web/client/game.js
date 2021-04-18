@@ -4,13 +4,10 @@
 const wall_margin = 8;
 const animation_speed = 20;
 
-// Init canvas
-canvas = document.getElementById("gameCanvas");
-canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+// variables
 
-// TODO init images
-images = {}
+var currently_animated = false;
+var images = {}
 
 const boulderImg = new Image();
 boulderImg.src = 'resources/boulder.png';
@@ -31,6 +28,14 @@ images["P"] = duckPoolImg;
 const iceImg = new Image();
 iceImg.src = 'resources/ice.png';
 images["I"] = iceImg;
+
+// TODO wait until images actually load
+
+// Init canvas
+canvas = document.getElementById("gameCanvas");
+canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
 
 var phase = 1
 var ws = new WebSocket("ws://127.0.0.1:8765/"),
@@ -225,11 +230,6 @@ function putToCell(block, position, ctx) {
     putToCellPx(block, px, py, ctx);
 }
 
-
-var report_i = 0;
-var step_i = 0;
-var currently_animated = false;
-
 function onGameReports(data) {
     const data_obj = JSON.parse(data);
     const ctx = canvas.getContext("2d");
@@ -238,8 +238,8 @@ function onGameReports(data) {
     ctx.textBaseline = 'middle';
 
     const steps = data_obj.steps;
-    step_i = 0;
-    report_i = 0;
+    var report_i = 0;
+    var step_i = 0;
     let start;
     let px, py;
 
