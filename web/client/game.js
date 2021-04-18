@@ -2,7 +2,7 @@
 // constants
 
 const wall_margin = 8;
-const animation_speed = 20;
+const animation_speed = 30;
 
 // variables
 
@@ -29,7 +29,50 @@ const iceImg = new Image();
 iceImg.src = 'resources/ice.png';
 images["I"] = iceImg;
 
-// TODO wait until images actually load
+images_ready = async function() {
+    return new Promise((all_resolved, all_reject) => {
+        let promises = [];
+        for(var key in images) {
+            promises.push(new Promise((resolve, reject) => {
+                images[key].onload = function() {
+                    return resolve();
+                };
+            }));
+        }
+
+        Promise.all(promises).then(function() {
+            return all_resolved();
+        });
+    });
+};
+
+var ws;
+
+images_ready().then(function() {
+    console.log("Images are ready");
+    // Init websocket
+    ws = new WebSocket("ws://127.0.0.1:8765/");
+
+    ws.onmessage = function (event) {
+        console.log("received phase " + phase)
+        var message = event.data;
+        switch(phase) {
+            case 1:
+                onGameMapReceived(message);
+                phase++;
+                break;
+            case 2:
+                onGameReports(message);
+                break;
+        }
+    };
+
+    ws.onerror = function(evt) {
+        document.getElementById("message").textContent = "Unable to connect to Game server.";
+    };
+
+});
+
 
 // Init canvas
 canvas = document.getElementById("gameCanvas");
@@ -38,8 +81,6 @@ canvas.height = window.innerHeight || document.documentElement.clientHeight || d
 
 
 var phase = 1
-var ws = new WebSocket("ws://127.0.0.1:8765/"),
-    messages = document.createElement('ul');
 var current_map = 0
 
 var block_size = 40;
@@ -137,6 +178,7 @@ function drawWalls(block, pos, ctx) {
 }
 
 function renderMap(map) {
+    console.log(map);
     current_map = {};
     const ctx = canvas.getContext("2d");
     ctx.strokeStyle = "black";
@@ -150,37 +192,40 @@ function renderMap(map) {
     const width = map.map_size.width;
     const height = map.map_size.height;
 
-    block_size = Math.floor(canvas.height/height);
+    block_size = Math.min(Math.floor(canvas.height/height), 60);
     half_block_size = Math.floor(block_size/2);
 
     const width_px = width*block_size;
     const height_px = height*block_size;
 
-    ctx.beginPath();
-    for (let i = 0; i <= width; i++) {
-        const x = i*block_size;
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height_px)
-        ctx.stroke();
-    }
-    for (let i = 0; i <= height; i++) {
-        const y = i*block_size;
-        ctx.moveTo(0, y);
-        ctx.lineTo(width_px, y);
-        ctx.stroke();
-    }
-    ctx.closePath();
+    //ctx.beginPath();
+    //for (let i = 0; i <= width; i++) {
+    //    const x = i*block_size;
+    //    ctx.moveTo(x, 0);
+    //    ctx.lineTo(x, height_px)
+    //    ctx.stroke();
+    //}
+    //for (let i = 0; i <= height; i++) {
+    //    const y = i*block_size;
+    //    ctx.moveTo(0, y);
+    //    ctx.lineTo(width_px, y);
+    //    ctx.stroke();
+    //}
+    //ctx.closePath();
 
     // blocks
     const cells = map.cells;
-    cells.forEach(function (cell) {
+    console.log("number of cells: " + cells.length);
+    for(let i=0; i<cells.length; ++i) {
+        console.log("hit");
+        let cell = cells[i];
         const pos = cell.pos;
         const blocks = cell.blocks;
         const block = blocks[blocks.length-1];
 
         current_map[pos.x + ":" + pos.y] = block;
         putToCell(block, pos, ctx);
-    });
+    }
 }
 
 function onGameMapReceived(map_data) {
@@ -238,88 +283,109 @@ function onGameReports(data) {
     ctx.textBaseline = 'middle';
 
     const steps = data_obj.steps;
-    var report_i = 0;
+    var reports_done;
     var step_i = 0;
     let start;
-    let px, py;
+    let blocks;
+    let px = {};
+    let py = {};
 
     function update(timestamp) {
         const reports = steps[step_i].reports;
+        if(reports_done === undefined) {
+            reports_done = new Array(reports.length).fill(false);
 
-
-        console.log("Animating step " + step_i + ", record: " + report_i);
-        if (report_i >= reports.length) {
-            return;
+            // collect blocks for reports
+            blocks = [];
+            for(let i=0; i<reports.length; ++i) {
+                let pos = reports[i].position;
+                blocks.push(current_map[pos.x + ":" + pos.y]);
+            }
         }
 
         if (start === undefined) {
                 start = timestamp;
         }
 
-        let ms_passed = timestamp-start;
-        start = timestamp;
+        for(let report_i=0; report_i<reports.length; report_i++) {
+            if(reports_done[report_i]) {
+                continue;
+            }
 
-        let report = reports[report_i];
-        const pos = report.position;
-        const target = report.target;
+            console.log("Animating step " + step_i + ", record: " + report_i);
 
-        const block = current_map[pos.x + ":" + pos.y];
-        if(!block) {
-            console.log("Ohh nooo. Block not found for step " + step_i + ", record " + report_i);
-            return;
-        }
+            let ms_passed = timestamp-start;
+            start = timestamp;
 
-        switch(report.type) {
-            case "moving":
-                if(target !== null) {
-                    if( px === undefined) {
-                        px = pos.x*block_size;
-                        py = pos.y*block_size;
+            let report = reports[report_i];
+            const pos = report.position;
+
+            const target = report.target;
+
+            const block = blocks[report_i];
+            if(!block) {
+                console.log("Ohh nooo. Block not found for step " + step_i + ", record " + report_i);
+                return;
+            }
+
+            switch(report.type) {
+                case "moving":
+                    if(target !== null) {
+                        if(!px[report_i]) {
+                            px[report_i] = pos.x*block_size;
+                            py[report_i] = pos.y*block_size;
+                        }
+                        let signum_x = target.x - pos.x;
+                        let signum_y = target.y - pos.y;
+
+                        clearCellPx(px[report_i], py[report_i], ctx);
+                        px[report_i] += signum_x*animation_speed;
+                        py[report_i] += signum_y*animation_speed;
+
+
+                        let distance = (px[report_i] - target.x*block_size + py[report_i]-target.y*block_size )*(signum_x+signum_y);
+                        if(distance > 0) {
+                            // draw last
+                            px[report_i] += -signum_x*distance;
+                            py[report_i] += -signum_y*distance;
+                            putToCellPx(block, px[report_i], py[report_i], ctx);
+
+                            // report done
+                            delete current_map[pos.x + ":" + pos.y];
+                            current_map[target.x + ":" + target.y] = block;
+                            delete px[report_i];
+                            delete py[report_i];
+                            reports_done[report_i] = true;
+                            console.log("Move done");
+                        } else {
+                            putToCellPx(block, px[report_i], py[report_i], ctx);
+                        }
                     }
-                    let signum_x = target.x - pos.x;
-                    let signum_y = target.y - pos.y;
-
-                    clearCellPx(px, py, ctx);
-                    px += signum_x*animation_speed;
-                    py += signum_y*animation_speed;
-                    console.log("("+px+","+py+")");
-                    putToCellPx(block, px, py, ctx);
-
-                    console.log("moving");
-                    if((px - target.x*block_size + py-target.y*block_size )*(signum_x+signum_y) > 0) {
-                        // next report
+                    else {
+                        // captured
+                        clearCell(pos, ctx);
+                        reports_done[report_i] = true;
                         delete current_map[pos.x + ":" + pos.y];
-                        current_map[target.x + ":" + target.y] = block;
-                        report_i++;
-                        px = undefined;
-                        py = undefined;
-                        console.log("Move done");
+                        console.log("captured");
                     }
-                }
-                else {
-                    // captured
+                    break;
+                case "melting":
                     clearCell(pos, ctx);
-                    delete current_map[pos.x + ":" + pos.y];
-                    report_i++;
-                    console.log("captured");
-                }
-                break;
-            case "melting":
-                clearCell(pos, ctx);
-                block.life = report.life_now;
-                if(block.life > 0) {
-                    putToCell(block, pos, ctx);
-                }
-                report_i++;
-                break;
-            default:
-                report_i++;
-                break;
+                    block.life = report.life_now;
+                    if(block.life > 0) {
+                        putToCell(block, pos, ctx);
+                    }
+                    reports_done[report_i] = true;
+                    break;
+                default:
+                    reports_done[report_i] = true;
+                    break;
+            }
         }
 
-        if( report_i >= reports.length) {
+        if( reports_done.every(function(b) { return b;})) {
+            reports_done = undefined;
             step_i++;
-            report_i = 0;
         }
 
         if(step_i < steps.length) {
@@ -336,21 +402,3 @@ function onGameReports(data) {
         window.requestAnimationFrame(update);
     }
 }
-
-ws.onmessage = function (event) {
-    console.log("received phase " + phase)
-    var message = event.data;
-    switch(phase) {
-        case 1:
-            onGameMapReceived(message);
-            phase++;
-            break;
-        case 2:
-            onGameReports(message);
-            break;
-    }
-};
-
-ws.onerror = function(evt) {
-    document.getElementById("message").textContent = "Unable to connect to Game server.";
-};
