@@ -5,7 +5,7 @@ import os
 import pathlib
 from typing import Optional
 
-import aiofiles as aiofiles
+import aiofiles
 import websockets
 
 from game.gamemap import GameMap

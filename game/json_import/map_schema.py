@@ -49,10 +49,16 @@ class AbstractWallSchema(OneOfSchema):
 
 
 class PlayerSchema(Schema):
+    move_once = fields.Boolean(required=False)
 
     @post_load
     def make_player(self, data, **kwargs) -> Player:
-        return Player()
+        move_only_once = data.get("move_once", False)
+        return Player(move_only_once=move_only_once)
+
+    @pre_dump
+    def _pre_dump(self, player_block: Player, **kwargs):
+        return {"move_once": player_block.is_moving_only_once}
 
 
 class RockSchema(Schema):
