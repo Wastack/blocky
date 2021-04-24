@@ -1,10 +1,9 @@
 import logging
 from tkinter import Canvas
-from typing import Type, Optional, Callable, Any
+from typing import Type, Optional, Callable, Any, Iterable
 
 from game.blocks.impl.duck_pool import DuckPoolBlock
 from game.blocks.impl.melting_ice import MeltingIceBlock
-from game.blocks.impl.player import Player
 from game.blocks.walls.wall import Wall
 from game.utils.direction import Direction
 from game.utils.position import Position
@@ -12,7 +11,11 @@ from gui.block_views import block_view_factory
 from gui.block_views.block import BLOCK_SIZE, BlockView
 from gui.controllers.selection_controller import SelectionController
 from gui.utils import MouseRange
-from gui.views.map_view import MapView
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from game.blocks.block import AbstractBlock
+    from gui.views.map_view import MapView
 
 
 def _with_redraw(func):
@@ -23,13 +26,17 @@ def _with_redraw(func):
 
 
 class BlockSelectionController(SelectionController):
-    def __init__(self, canvas: Canvas, map_view: MapView):
+    def __init__(self, canvas: Canvas, map_view: 'MapView'):
         super().__init__(canvas)
         self._map = map_view
         self._exceptions = {}
 
         self._head: Optional[Position] = None
         self._changed_callbacks = []
+
+    def selected_blocks(self) -> Iterable['AbstractBlock']:
+        for pos in self.selected_items:
+            yield self._map.cell(pos)
 
     def subscribe_changed(self, callback: Callable[[],Any]):
         self._changed_callbacks.append(callback)
@@ -146,3 +153,16 @@ class BlockSelectionController(SelectionController):
                 block.set_life(capacity)
             elif isinstance(block, DuckPoolBlock) and capacity >= -1:
                 block.set_capacity(capacity)
+
+    @_with_redraw
+    def change_move_once_on_selection(self, move_once: bool) -> None:
+        logging.debug("Change move only once property of players")
+        if not self.has_selection():
+            logging.debug("No blocks selected to change moving property of players")
+            return
+
+        for b in self.selected_blocks():
+            try:
+                b.set_move_only_once(move_once)
+            except AttributeError:
+                pass

@@ -3,10 +3,10 @@ from game.moveables.movable import Movable
 from game.utils.direction import Direction
 from game.utils.move_verdict import MoveVerdict, MoveVerdictEnum
 
-from typing import TYPE_CHECKING
 
 from game.utils.position import Position
 
+from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from game.blocks.block import AbstractBlock
     from game.gamemap import GameMap
@@ -45,6 +45,9 @@ class Player(Movable):
     @property
     def is_moving_only_once(self) -> bool:
         return self.__move_only_once
+
+    def set_move_only_once(self, val: bool):
+        self.__move_only_once = val
 
     @property
     def is_alive(self) -> bool:

@@ -4,12 +4,14 @@ from tkinter import Canvas
 from tkinter.font import Font
 from typing import Optional, Type
 
+from game.blocks.impl.player import Player
 from game.utils.direction import Direction
 from gui.block_views.wall_views.wall_factory import registered_wall_views
 from gui.block_views.wall_views.wall_view import WallView
 from gui.controllers.block_selection_controller import BlockSelectionController
 from gui.utils import WINDOW_WIDTH, BLOCK_SIZE
 from gui.views.palette import Palette
+from gui.views.property_settings.checkbox import CheckBox
 from gui.views.property_settings.counter_button import CounterButton
 
 PROPERTY_SETTINGS_WINDOW_WIDTH = WINDOW_WIDTH // 5
@@ -118,15 +120,29 @@ class PropertySettings:
                                      fill="DeepSkyBlue1", font=times)
         )
         y_offset = y_offset + 20
-        box = self._draw_bounding_box(y=y_offset, height=CAPACITY_BOX_HEIGHT)
+        self._draw_bounding_box(y=y_offset, height=CAPACITY_BOX_HEIGHT)
         self._capacity_button = CounterButton(self._canvas, pos=(self._leftmost_pos + 10, y_offset + 5), size=CAPACITY_BOX_HEIGHT - 2*5)
-
 
         # Inject capacity to selection controller with a callback
         self._capacity_button.set_change_callback(self._block_selection_controller.change_capacity_on_selection)
 
         self._capacity_button.draw()
         self._drawn_objects.append(self._capacity_button)
+
+        # Checkbox to decide if player can move only once
+        # TODO show only if at least one player is selected
+        y_offset = y_offset + CAPACITY_BOX_HEIGHT + 20
+        self._drawn_ids.append(
+            self._canvas.create_text(self._leftmost_pos + 70, y_offset, text="Move once?",
+                                     fill="DeepSkyBlue1", font=times)
+        )
+        y_offset = y_offset + 20
+        self._draw_bounding_box(y=y_offset, height=CAPACITY_BOX_HEIGHT)
+        self._player_move_checkbox = CheckBox(self._canvas, pos=(self._leftmost_pos + 10, y_offset + 5), size=CAPACITY_BOX_HEIGHT - 2*5)
+        self._player_move_checkbox.set_change_callback(self._block_selection_controller.change_move_once_on_selection)
+        self._player_move_checkbox.draw()
+        self._drawn_objects.append(self._player_move_checkbox)
+
 
     def _trigger_palette(self, wall_view_type: Type[WallView]):
         """
