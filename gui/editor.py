@@ -244,7 +244,9 @@ class EditorGUI:
         self._game_map.destroy()
 
     def _game_over(self):
+        logging.info("Game over. Redraw editor")
         self._game_map.draw()
+        self._settings_canvas.pack(side="right", fill="y")
 
 
 def main():
