@@ -208,31 +208,11 @@ class EditorGUI:
         with open(filename, "w") as f:
             f.write(json_string)
 
-    def _clear_game_canvas(self):
-        if not self._game_canvas:
-            return
-        if self._game_map:
-            self._game_map.destroy()
-            self._game_map = None
-        if self._selection_controller:
-            self._selection_controller.destroy()
-            self._selection_controller = None
-        if self._palette_controller:
-            self._palette_controller.destroy()
-            self._palette_controller = None
-        if self._resizer:
-            self._resizer.destroy()
-            self._resizer = None
-        if self._property_settings:
-            self._property_settings.destroy()
-            self._property_settings = None
-
     def _start_game(self):
         # Hide settings property window
         self._settings_canvas.pack_forget()
         if self._resizer:
             self._resizer.destroy()
-            self._resizer = None
         if self._selection_controller:
             self._selection_controller.destroy()
             self._selection_controller = None
@@ -247,6 +227,7 @@ class EditorGUI:
         logging.info("Game over. Redraw editor")
         self._game_map.draw()
         self._settings_canvas.pack(side="right", fill="y")
+        self._resizer.draw_resizing_rect()
 
 
 def main():
