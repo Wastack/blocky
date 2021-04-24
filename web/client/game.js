@@ -57,6 +57,10 @@ images_ready().then(function() {
     // Init websocket
     ws = new WebSocket("ws://127.0.0.1:8765/");
 
+    ws.onopen = function(event) {
+        canvas.style.display = "block";
+    };
+
     ws.onmessage = function (event) {
         console.log("received phase " + phase)
         var message = event.data;
@@ -72,7 +76,11 @@ images_ready().then(function() {
     };
 
     ws.onerror = function(evt) {
-        document.getElementById("message").textContent = "Unable to connect to Game server.";
+        const msgDiv = document.getElementById("message")
+        msgDiv.textContent = "Unable to connect to Game server.";
+        const image = document.getElementById('message_duck');
+        image.style.display = "block";
+
     };
 
 });
