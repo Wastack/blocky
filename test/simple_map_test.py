@@ -171,6 +171,7 @@ def test_duckpool():
     assert pool.free_space == -1
     assert len(pool._blocks_in_pool) == 1
 
+
 def test_boulder():
     # Given
     map, manager = loadMap("test_boulder.json")
@@ -183,3 +184,22 @@ def test_boulder():
     assert player.is_alive
     boulder: Boulder = map.block(Position(4, 0)).top()
     assert type(boulder) == Boulder
+
+
+def test_move_one_duck():
+    # Given
+    map, manager = loadMap("test_move_one_duck.json")
+
+    # When
+    manager.execute_turn(Direction.RIGHT)
+
+    # Then
+    player: Player = map.block(Position(2, 0)).top()
+    assert player.is_alive
+
+    # When
+    manager.execute_turn(Direction.RIGHT)
+
+    # Then
+    player: Player = map.block(Position(3, 0)).top()
+    assert player.is_alive
