@@ -59,3 +59,41 @@ def test_duck_boulder_duck():
     p2: 'Player' = map.block(Position(5, 0)).top()
     assert p2.is_alive
     assert type(map.block(Position(4, 0)).top()) == Boulder
+
+
+def test_multiple_frogs():
+    # Given
+    map, manager = loadMap("test_multiple_frogs.json")
+
+    # When
+    manager.execute_turn(Direction.RIGHT)
+
+    # Then
+    p: 'Player' = map.block(Position(2, 0)).top()
+    assert p.is_alive
+    p = map.block(Position(3, 0)).top()
+    assert p.is_alive
+    p = map.block(Position(4, 0)).top()
+    assert p.is_alive
+
+    # When
+    manager.execute_turn(Direction.RIGHT)
+
+    # Then
+    p: 'Player' = map.block(Position(3, 0)).top()
+    assert p.is_alive
+    p = map.block(Position(4, 0)).top()
+    assert p.is_alive
+    p = map.block(Position(5, 0)).top()
+    assert p.is_alive
+
+    # When
+    manager.execute_turn(Direction.LEFT)
+
+    # Then
+    p: 'Player' = map.block(Position(1, 0)).top()
+    assert p.is_alive
+    p = map.block(Position(3, 0)).top()
+    assert p.is_alive
+    p = map.block(Position(4, 0)).top()
+    assert p.is_alive

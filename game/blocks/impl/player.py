@@ -115,7 +115,8 @@ class Player(Movable):
 
         # If player is capable to move only one step,
         # it should finish moving no matter what.
-        if self.__move_only_once:
+        # Except if player is delayed.
+        if self.__move_only_once and verdict.verdict != MoveVerdictEnum.DELAYED:
             self._inactive = True
 
         return verdict
