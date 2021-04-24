@@ -29,6 +29,9 @@ const iceImg = new Image();
 iceImg.src = 'resources/ice.png';
 images["I"] = iceImg;
 
+const frogImg = new Image();
+frogImg.src = 'resources/frog.png';
+images["F"] = frogImg;
 images_ready = async function() {
     return new Promise((all_resolved, all_reject) => {
         let promises = [];
@@ -47,6 +50,7 @@ images_ready = async function() {
 };
 
 var ws;
+
 
 images_ready().then(function() {
     console.log("Images are ready");
@@ -117,6 +121,9 @@ function keyDownHandler(e) {
 function cellTextFromBlock(block) {
         switch(block.type) {
             case "Anna":
+                if (block.move_once) {
+                    return "F";
+                }
                 return "A";
             case "MeltingIce":
                 if(block.life > 0) {

@@ -63,7 +63,7 @@ class WebGame:
         logging.info("Received connection")
 
         # Parse map
-        self.__map_model = await self.open_map("boulder.json")
+        self.__map_model = await self.open_map("froggy.json")
         self.__player_manager = PlayerManager(self.__map_model)
 
         # Send map

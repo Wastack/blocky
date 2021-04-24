@@ -23,11 +23,11 @@ class PlayerBlockView(BlockView):
         return ret
 
     def draw(self, pos: Position) -> Any:
+        self._set_png_image("frog.png" if self._block.is_moving_only_once else "duck.png")
         if self._text_id is not None:
             self.destroy()
         self._set_image_facing(self._block.facing)
         super().draw(pos)
-
 
     def destroy(self):
         super().destroy()
