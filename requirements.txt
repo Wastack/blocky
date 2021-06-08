@@ -1,6 +1,6 @@
 aiofiles==0.6.0
 marshmallow==3.7.1
-Pillow==8.1.2
+Pillow==8.2.0
 websockets==8.1
 
 pytest~=6.1.1
