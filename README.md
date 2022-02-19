@@ -16,10 +16,12 @@ Hopefully you can help them find the swimming pools they are after.
 Dependencies are in `requirements.txt`.
 
 ```bash
-# Using pip
+# Using pip 3
 pip install -r requirements.txt
 
 # Or using Conda
+conda config --add channels conda-forge
+conda config --add channels distro-tooling
 conda create --name <env_name> --file requirements.txt
 ```
 
