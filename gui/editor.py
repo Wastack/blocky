@@ -29,13 +29,16 @@ logging.getLogger("PIL").setLevel(logging.WARNING)
 class EditorGUI:
     def __init__(self):
         self._game_canvas = None
-        self._game_map: Optional[MapView] = None
         self._resizer: Resizer = None
         self._palette_controller = None
         self._selection_controller = None
         self._settings_canvas = None
         self._property_settings = None
-        self._game_session = None
+
+        # Object used when editing the map
+        self._editor_game_map: Optional[MapView] = None
+        # Object used when playing a game
+        self._game_session: Optional[GameGUI] = None
 
     def show(self):
         self._create_window()
@@ -77,20 +80,20 @@ class EditorGUI:
         # Game Map
         gm = MapView(game_model, self._game_canvas)
         gm.draw()
-        if self._game_map:
-            self._game_map.destroy()
-        self._game_map = gm
+        if self._editor_game_map:
+            self._editor_game_map.destroy()
+        self._editor_game_map = gm
 
         # Selection Controller
-        sc = BlockSelectionController(self._game_canvas, self._game_map)
+        sc = BlockSelectionController(self._game_canvas, self._editor_game_map)
         sc.register_canvas_events(click=True, shift=True, control=True)
         if self._selection_controller:
             self._selection_controller.destroy()
         self._selection_controller = sc
 
         # Resizer (Controller)
-        r = Resizer(self._game_canvas, self._game_map, self._selection_controller,
-                    self._game_map.resize)
+        r = Resizer(self._game_canvas, self._editor_game_map, self._selection_controller,
+                    self._editor_game_map.resize)
         r.draw_resizing_rect()
         if self._resizer:
             self._resizer.destroy()
@@ -172,9 +175,9 @@ class EditorGUI:
 
     def _handle_not_saved_current_map(self) -> bool:
         """:returns false if dialog is cancelled. True otherwise"""
-        if self._game_map is None or \
-                (self._game_map.size.width <= 1 and
-                 self._game_map.size.height <= 1):
+        if self._editor_game_map is None or \
+                (self._editor_game_map.size.width <= 1 and
+                 self._editor_game_map.size.height <= 1):
             return True  # Initial state. No save required
 
         popup_result = tkinter.messagebox.askyesnocancel(title="Blocky", message="Current map is not saved. Wanna save it?")
@@ -193,12 +196,12 @@ class EditorGUI:
         raise NotImplementedError()
 
     def _save_map_as(self):
-        if not self._game_map:
+        if not self._editor_game_map:
             err_msg = "Attempt to save when there is no game map loaded."
             logging.error(err_msg)
             raise RuntimeError(err_msg)
         schema = MapSchema()
-        map_model = self._game_map.game_map
+        map_model = self._editor_game_map.game_map
         logging.debug(map_model)
         json_string = schema.dumps(map_model)
         filename = filedialog.asksaveasfilename()
@@ -209,6 +212,9 @@ class EditorGUI:
             f.write(json_string)
 
     def _start_game(self):
+        if self._game_session is not None:
+            logging.warning("Game start button is pressed, but a game is already in progress")
+            return
         # Hide settings property window
         self._settings_canvas.pack_forget()
         if self._resizer:
@@ -218,14 +224,20 @@ class EditorGUI:
             self._selection_controller = None
 
         self._game_canvas.focus_set()
-        self._game_session = GameGUI(self._game_canvas, copy.deepcopy(self._game_map.game_map))
+
+        # Game session is a copy of the current map designed in the editor
+        self._game_session = GameGUI(self._game_canvas, copy.deepcopy(self._editor_game_map.game_map))
+
         self._game_session.register_game_events(callback=self._game_over)
         self._game_session.draw()
-        self._game_map.destroy()
+        self._editor_game_map.destroy()
 
     def _game_over(self):
-        logging.info("Game over. Redraw editor")
-        self._game_map.draw()
+        logging.info("Game over. Destroy in-game object and redraw editor")
+        self._game_session.destroy()
+        self._game_session = None
+
+        self._editor_game_map.draw()
         self._settings_canvas.pack(side="right", fill="y")
         self._resizer.draw_resizing_rect()
 
